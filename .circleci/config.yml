@@ -11,7 +11,7 @@ jobs:
       - run: |
           cd ~/private-note
           rm -rf *
-          git clone git@github.com:CatEars/private-note .
+          git clone https://github.com/CatEars/private-note.git .
 
       # Download and cache dependencies
       - restore_cache:
@@ -45,7 +45,7 @@ jobs:
       - run: |
           cd ~/private-note
           rm -rf *
-          git clone git@github.com:CatEars/private-note .
+          git clone https://github.com/CatEars/private-note.git .
 
       # Download and cache dependencies
       - restore_cache:
