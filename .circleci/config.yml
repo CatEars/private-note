@@ -3,12 +3,13 @@ jobs:
   test-backend:
     docker:
       - image: node:lts-alpine
+    
+    working_directory: ~/private-note/backend
 
     steps:
       - run: apk add ca-certificates git openssh-client
-      - checkout
-
-      - run: cd backend
+      - checkout:
+          path: ~/private-note
 
       # Download and cache dependencies
       - restore_cache:
@@ -35,11 +36,12 @@ jobs:
   test-frontend:
     docker:
       - image: node:lts-alpine
+
+    working_directory: ~/private-note/frontend
     steps:
       - run: apk add ca-certificates git openssh-client
-      - checkout
-
-      - run: cd frontend
+      - checkout:
+          path: ~/private-note
 
       # Download and cache dependencies
       - restore_cache:
