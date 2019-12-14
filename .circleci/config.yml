@@ -56,7 +56,7 @@ jobs:
             npm ci
             ./print_rev_info.sh > revinfo.txt
             docker build . -t catears/private-note:$CIRCLE_BRANCH -f dockerfile-private-note
-            echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME
+            echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
             docker push catears/private-note:$CIRCLE_BRANCH
 
   test-frontend:
