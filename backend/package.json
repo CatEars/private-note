@@ -1,6 +1,6 @@
 {
   "name": "private-note-backend",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Backend for private-note app",
   "main": "dist/src/index.js",
   "scripts": {
