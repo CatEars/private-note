@@ -43,7 +43,6 @@ export interface NoteOptions {
  * Interface towards database.
  */
 export interface Database {
-
     startDatabase(): Promise<any>
 
     storeNote(note: Note): Promise<NoteId>
@@ -55,5 +54,4 @@ export interface Database {
     getLog(logId: LogId): Promise<Log>
 
     stopDatabase(): Promise<any>
-
 }

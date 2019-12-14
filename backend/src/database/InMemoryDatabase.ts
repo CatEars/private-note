@@ -1,13 +1,6 @@
 import uuid from 'uuid'
 
-import {
-    Database,
-    Log,
-    LogId,
-    Note,
-    NoteId,
-    NoteOptions,
-} from './types'
+import { Database, Log, LogId, Note, NoteId, NoteOptions } from './types'
 
 /**
  * Database that stores notes in working memory.
@@ -16,7 +9,7 @@ export class InMemoryDatabase implements Database {
     private storage = {
         notes: {},
         accesses: {},
-        logs: {}
+        logs: {},
     }
 
     InMemoryDatabase() {}
@@ -47,7 +40,7 @@ export class InMemoryDatabase implements Database {
             checkAllowedReads = true,
             checkBurnDate = true,
             addAccess = true,
-            accessInfo = { }
+            accessInfo = {},
         } = options
 
         if (!this.storage.notes[noteId]) {
@@ -59,16 +52,20 @@ export class InMemoryDatabase implements Database {
         if (checkAllowedReads && currentAccesses.length >= note.allowedReads) {
             const A = note.allowedReads
             const B = currentAccesses.length
-            throw new Exception(`Note with Id "${noteId}" allows only ${A} reads but ` +
-                                `currently has ${B} reads`)
+            throw new Exception(
+                `Note with Id "${noteId}" allows only ${A} reads but ` +
+                    `currently has ${B} reads`
+            )
         }
 
         const currentTime = Date.now()
         if (checkBurnDate && note.burnDate >= currentTime) {
             const A = new Date(note.burnDate)
             const B = new Date(currentTime)
-            throw new Exception(`Note with id "${noteId}" allows only access before ${A} ` +
-                               `but currently it is ${B}`)
+            throw new Exception(
+                `Note with id "${noteId}" allows only access before ${A} ` +
+                    `but currently it is ${B}`
+            )
         }
 
         if (addAccess) {
@@ -89,5 +86,4 @@ export class InMemoryDatabase implements Database {
     dumpDatabase(): any {
         return this.storage
     }
-
 }
