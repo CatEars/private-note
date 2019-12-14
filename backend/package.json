@@ -1,7 +1,7 @@
 {
-  "name": "CHANGEME",
+  "name": "private-note-backend",
   "version": "0.0.1",
-  "description": "CHANGEME",
+  "description": "Backend for private-note app",
   "main": "dist/src/index.js",
   "scripts": {
     "test": "jest",
@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "CHANGEME",
+  "license": "MIT",
   "devDependencies": {
     "@types/express": "^4.17.2",
     "@types/jest": "^24.0.16",
