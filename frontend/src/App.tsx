@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import './App.css';
+import { ErrorBoundary } from './Error.jsx';
+import { NoteFailed } from './NoteFailed.jsx';
+import { Note } from './Note.jsx';
+import { LinkLoading } from './LinkLoading.jsx';
+import { Link } from './Link.jsx';
+import { Form } from './Form.jsx';
 
 const mock = false;
 
@@ -47,125 +53,74 @@ const getNote = async (id: string) => {
     }
 };
 
-const App: React.FC = () => {
+const App = () => {
     const currentLocation = window.location.href;
     const url = new URL(currentLocation);
-    const [messageText, setMessageText] = useState('Enter message here...');
-    const [timeUntilRemoved, setTimeUntilRemoved] = useState(60);
-    const [note, setNote] = useState({message: '', burnDate: Date.now()});
-    const [noteLoading, setNoteLoading] = useState(false);
     const [createdNoteId, setCreatedNoteId] = useState('');
+    const [noteLoading, setNoteLoading] = useState(false);
+    const [note, setNote] = useState({message: 'hello world', burnDate: Date.now() + 5000});
     const [noteFailed, setNoteFailed] = useState(false);
 
-    const onClickSubmit = (event: any) => {
-        event.preventDefault();
-        const message = messageText;
-        const burnDate = Date.now() + timeUntilRemoved * 1000;
+    const onCreateNote = (message: string, burnDate: number) => {
         setCreatedNoteId('1234');
         createNote(message, burnDate)
             .then(id => {
                 setCreatedNoteId(id);
             });
-        return false;
     };
 
-    const onMessageChange = (event: any) => {
-        setMessageText(event.target.value);
-    };
-
-    const onTimeChange = (event: any) => {
-        const nextValue = Number.parseInt(event.target.value);
-        if (!isNaN(nextValue) && nextValue > 0)
-            setTimeUntilRemoved(event.target.value);
-        if (event.target.value === '') {
-            setTimeUntilRemoved(-1);
-        }
+    const doLoadNote = (noteId: string) => {
+        setNoteLoading(true);
+        getNote(noteId)
+            .then(note => {
+                setNote(note);
+            })
+            .catch(() => {
+                setNoteFailed(true);
+            });
     };
 
     let app = (
-        <p>This should never display...</p>
+        <p>...</p>
     );
 
     const uuidRegex = /([0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12})/g;
+    const urlIncludesUuid = uuidRegex.test(url.pathname);
+    const creatingNoteId = createdNoteId === '1234';
+    const showLink = createdNoteId && !creatingNoteId;
+
     if (noteFailed) {
         app = (
-            <>
-              <p>Could not load the note!</p>
-            </>
+            <NoteFailed />
         );
-    } else if (uuidRegex.test(url.pathname)) {
+    } else if (urlIncludesUuid) {
         const matches = url.pathname.match(uuidRegex) as any;
         if (!noteLoading) {
-            setNoteLoading(true);
-            getNote(matches[0])
-                .then(note => {
-                    setNote(note);
-                })
-                .catch(() => {
-                    setNoteFailed(true);
-                });
+            doLoadNote(matches[0]);
         }
         app = (
-            <>
-              <p>
-                You are viewing note: {matches[0]}
-              </p>
-              <p>
-                Message: {note.message}
-              </p>
-              <p>
-                Burns up at: {`${new Date(note.burnDate)}`}
-              </p>
-            </>
+            <Note noteId={matches[0]} note={note}/>
         );
-    } else if (createdNoteId) {
-        if (createdNoteId === '1234') {
-            app = (
-                <>
-                  <p>Fixing the link to your note!</p>
-                </>
-            );
-        } else {
-            const linkText = `${url.origin}/${createdNoteId}`;
-            app = (
-                <>
-                  <p>Here is the link to your message: {linkText}</p>
-                </>
-            );
-        }
+    } else if (creatingNoteId) {
+        app = (
+            <LinkLoading />
+        );
+    } else if (showLink) {
+        app = (
+            <Link noteId={createdNoteId} />
+        );
     } else {
         app = (
-            <>
-              <p>
-                Enter your secret and get a link for it on screen!
-              </p>
-              <form>
-
-                <label htmlFor="message">Message:</label>
-                <input
-                  type="text"
-                  id="message"
-                  value={messageText}
-                  onChange={onMessageChange} /><br/>
-
-                <label htmlFor="removalTime">Time until removed (s)</label>
-                <input
-                  type="text"
-                  id="removalTime"
-                  value={timeUntilRemoved > 0 ? timeUntilRemoved : ''}
-                  onChange={onTimeChange} /><br/>
-                <input type="submit" value="Submit" onClick={onClickSubmit} />
-              </form>
-            </>
+            <Form onCreateNote={onCreateNote}/>
         );
     }
 
     return (
-        <div className="App">
-          <header className="App-header">
+        <ErrorBoundary>
+          <div className="flex flex-col bg-indigo-200 h-full w-full text-center content-center mx-auto">
             {app}
-          </header>
-        </div>
+          </div>
+        </ErrorBoundary>
     );
 };
 

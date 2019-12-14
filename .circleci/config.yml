@@ -50,6 +50,7 @@ jobs:
           command: |
             cd frontend
             npm ci
+            npm run build:styles
             npm run build
             cp -r build ../backend/static
             cd ../backend
@@ -91,6 +92,7 @@ jobs:
 
       - run: npm run test-ci
       - run: npm run build
+      - run: npm run build:styles
       - persist_to_workspace:
           root: ~/private-note
           paths: .
