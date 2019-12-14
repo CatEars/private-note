@@ -8,8 +8,10 @@ jobs:
 
     steps:
       - run: apk add ca-certificates git openssh-client
-      - checkout:
-          path: ~/private-note
+      - run: |
+          cd ~/private-note
+          rm -rf *
+          git clone git@github.com:CatEars/private-note .
 
       # Download and cache dependencies
       - restore_cache:
@@ -40,8 +42,10 @@ jobs:
     working_directory: ~/private-note/frontend
     steps:
       - run: apk add ca-certificates git openssh-client
-      - checkout:
-          path: ~/private-note
+      - run: |
+          cd ~/private-note
+          rm -rf *
+          git clone git@github.com:CatEars/private-note .
 
       # Download and cache dependencies
       - restore_cache:
