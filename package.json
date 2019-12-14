@@ -5,7 +5,16 @@
         "tabWidth": 4,
         "singleQuote": true,
         "semi": false,
-        "trailingComma": "es5"
+        "trailingComma": "es5",
+        "endOfLine": "lf",
+        "overrides": [
+            {
+                "files": "*.yml",
+                "options": {
+                    "tabWidth": 2
+                }
+            }
+        ]
     },
     "husky": {
         "hooks": {
@@ -16,5 +25,8 @@
         "husky": "^3.1.0",
         "prettier": "1.19.1",
         "pretty-quick": "^2.0.1"
+    },
+    "scripts": {
+        "pretty-check": "prettier --check ./backend/src/**/*.ts ./frontend/src/**/*.jsx ./frontend/src/**/*.tsx ./frontend/src/**/*.js ./frontend/src/**/*.ts"
     }
 }

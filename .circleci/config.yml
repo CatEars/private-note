@@ -3,7 +3,7 @@ jobs:
   test-backend:
     docker:
       - image: node:lts-alpine
-    
+
     working_directory: ~/private-note/backend
 
     steps:
@@ -97,10 +97,42 @@ jobs:
           root: ~/private-note
           paths: .
 
+  test-both:
+    docker:
+      - image: node:lts-alpine
+
+    working_directory: ~/private-note
+    steps:
+      - run:
+          name: Install Dependencies
+          command: apk add ca-certificates git openssh-client
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+
+      - run: npm ci
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - run: npm run pretty-check
+      - persist_to_workspace:
+          root: ~/private-note
+          paths: .
+
 workflows:
   version: 2
   build:
     jobs:
+      - test-both:
+          filters:
+            branches:
+              only: /.*/
       - test-frontend:
           filters:
             branches:
@@ -113,6 +145,7 @@ workflows:
           requires:
             - test-frontend
             - test-backend
+            - test-both
           filters:
             branches:
               only: /^v[0-9]+\.[0-9]+.[0-9]+.*/
