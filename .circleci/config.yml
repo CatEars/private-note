@@ -18,7 +18,7 @@ jobs:
             - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-
 
-      - run: npm install
+      - run: npm ci
 
       - save_cache:
           paths:
@@ -30,6 +30,25 @@ jobs:
       - persist_to_workspace:
           root: ~/private-note
           paths: .
+
+  deploy-docker:
+    docker:
+      - image: ubuntu
+    working_directory: ~/private-note
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: |
+          cd frontend
+          npm ci
+          npm run build
+          cp build ../backend/static
+          cd ../backend
+          npm ci
+          docker build . -t catears/private-note:$CIRCLE_BRANCH -f dockerfile-private-note
+          ./print_rev_info.sh > revinfo.txt
+          echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME
+          docker push catears/private-note:$CIRCLE_BRANCH
 
   test-frontend:
     docker:
@@ -48,7 +67,7 @@ jobs:
             - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-
 
-      - run: npm install
+      - run: npm ci
 
       - save_cache:
           paths:
@@ -67,9 +86,16 @@ workflows:
     jobs:
       - test-frontend:
           filters:
-            tags:
+            branches:
               only: /.*/
       - test-backend:
           filters:
-            tags:
+            branches:
               only: /.*/
+      - deploy-docker:
+          requires:
+            - test-frontend
+            - test-backend
+          filters:
+            branches:
+              only: /^v[0-9]+\.[0-9]+.[0-9]+.*/
