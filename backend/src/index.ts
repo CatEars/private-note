@@ -1,110 +1,128 @@
-import express from 'express';
-import uuid from 'uuid';
+import express from 'express'
+import * as database from './database'
 
-type Note = {
-    message: string,
-    burnDate: number
-};
+const db = new database.InMemoryDatabase()
 
-type Log = {
-    ip: string,
-    timeOfAccess: number
-};
-
-const notes: {[key: string]: Note} = {};
-const accessesLeft: {[key: string]: number} = {};
-const log: {[key: string]: Log[]} = {};
-
-const createNote = (note: Note) => {
-    const id = uuid.v4();
-    notes[id] = note;
-    accessesLeft[id] = 1;
-    log[id] = [];
-    return id;
-};
-
-const deleteNote = (id: string) => {
-    delete notes[id];
-    delete accessesLeft[id];
-};
-
-const createLog = (request: express.Request, id: string) => {
-    const logEntry: Log = {
-        ip: request.ip,
+const createLog = async (req: express.Request) => {
+    const log: database.Log = {
+        accessUrl: req.url,
+        ip: req.ip,
         timeOfAccess: Date.now()
-    };
-    if (id && log[id]) {
-        log[id].push(logEntry);
-    } else {
-        console.warn('Log entry', logEntry, 'did not find any ID');
     }
-};
-
-const validateNoteBody = (msg: any) => {
-    return;
+    return await db.storeLog(log)
 }
 
-const cleanMessages = () => {
-    const keys = Object.keys(notes);
-    const toRemove = keys.filter(key => (
-        notes[key].burnDate < Date.now() || accessesLeft[key] <= 0
-    ));
-    toRemove.map(key => deleteNote(key));
+const isUuidV4 = (id: any) => {
+    if (!id) {
+        return false
+    }
+    return /^[A-F\d]{8}-[A-F\d]{4}-4[A-F\d]{3}-[89AB][A-F\d]{3}-[A-F\d]{12}$/i.test(id)
 }
 
-const main = () => {
-    const app = express();
-    app.use(express.json());
-    app.use(express.static('./static'));
+const validateNote = (note: any) => {
+    return Number.isInteger(note.allowedReads) &&
+        note.allowedReads > 0 &&
+        Number.isInteger(note.burnDate) &&
+        note.burnDate > Date.now() &&
+        typeof note.base64EncryptedMessage === "string" &&
+        typeof note.base64Fingerprint === "string" &&
+        typeof note.base64IV === "string" &&
+        typeof note.base64Salt === "string"
+}
 
-    app.get('/api/note/:ID', (req: any, res: any) => {
-        const { ID } = req.params;
-        createLog(req, ID);
-        if (ID && notes[ID] && accessesLeft[ID] > 0 &&
-            Date.now() < notes[ID].burnDate) {
-            accessesLeft[ID]--;
-            res.send(notes[ID]);
-        } else {
-            res.sendStatus(404);
+const main = async () => {
+    await db.startDatabase()
+
+    const app = express()
+    app.use(express.json())
+    app.use(express.static('./static'))
+
+    app.get('/api/note/:ID', async (req: express.Request, res: express.Response) => {
+        try {
+            const { ID } = req.params
+            if (!isUuidV4(ID)) {
+                res.sendStatus(400)
+                return
+            }
+
+            const logId = await createLog(req)
+            const options: database.NoteOptions = {
+                accessInfo: {
+                    logId
+                },
+                addAccess: true,
+                checkAllowedReads: true,
+                checkBurnDate: true
+            }
+            const note = await db.getNote(ID)
+
+            console.log(`Retrieved note "${ID}" and sending it back`)
+            res.send(note)
+        } catch (error) {
+            console.error('GET /api/note/:ID', error)
+            res.sendStatus(500)
         }
-    });
+    })
 
-    app.post('/api/note', (req: any, res: any) => {
-        validateNoteBody(req.body);
-        const { message, burnDate } = req.body;
-        const ID = createNote({ message, burnDate });
-        res.send({ ID });
-    });
+    app.post('/api/note', async (req: express.Request, res: express.Response) => {
+        try {
+            const {
+                allowedReads,
+                base64EncryptedMessage,
+                base64Fingerprint,
+                base64IV,
+                base64Salt,
+                burnDate
+            } = req.body
+            const note: database.Note = {
+                allowedReads,
+                base64EncryptedMessage,
+                base64Fingerprint,
+                base64IV,
+                base64Salt,
+                burnDate
+            }
 
-    app.delete('/api/note/:ID', (req: any, res: any) => {
-        const { ID } = req.params;
-        if (ID) {
-            deleteNote(ID);
-            res.sendStatus(200);
-        } else {
-            res.sendStatus(404);
+            if (!validateNote(note)) {
+                res.sendStatus(400)
+                return
+            }
+
+            await createLog(req)
+            const ID = await db.storeNote(note)
+            res.send({ ID })
+        } catch (error) {
+            console.error('POST /api/note', error)
+            res.sendStatus(500)
         }
-    });
+    })
 
-    app.get('/*', (req: any, res: any) => {
-        res.sendFile(process.cwd() + '/./static/index.html');
-    });
+    app.get('/*', (req: express.Request, res: express.Response) => {
+        try {
+            res.sendFile(process.cwd() + '/./static/index.html')
+        } catch (error) {
+            console.error('GET /*', error)
+            res.sendStatus(500)
+        }
+    })
 
 
-    app.listen(3000);
-};
+    app.listen(3000)
+}
 
 if (require.main === module) {
     process.on('SIGINT', function() {
-        console.log("Caught interrupt signal");
-        process.exit();
-    });
+        console.log("Caught interrupt signal")
+        process.exit()
+        await db.stopDatabase()
+    })
 
     setInterval(() => {
-        console.log('NOTES:', notes);
-        console.log('LOGS:', log);
-        cleanMessages();
-    }, 5000);
+        const fs = require('fs')
+        const database = db.dumpDatabase()
+        const stringified = JSON.stringify(database, null, 2)
+        fs.writeFileSync('database.json', stringified)
+    }, 5000)
 
-    main();
+    main()
 }
