@@ -38,6 +38,7 @@ jobs:
     steps:
       - run: apk add ca-certificates git openssh-client docker
       - checkout
+      - setup_remote_docker
       - run:
           name: Build app and push image
           command: |
