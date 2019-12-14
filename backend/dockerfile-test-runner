@@ -1,0 +1,6 @@
+FROM node:10.16.1-alpine
+
+WORKDIR /app
+COPY package.json package-lock.json tsconfig.json ./
+RUN npm i
+CMD npm run test:watch

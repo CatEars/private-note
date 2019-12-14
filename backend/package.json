@@ -1,0 +1,33 @@
+{
+  "name": "CHANGEME",
+  "version": "0.0.1",
+  "description": "CHANGEME",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watchAll",
+    "docker:test:build": "docker-compose build test-runner",
+    "docker:test:watch": "docker-compose run test-runner",
+    "build": "rm -rf dist && tsc",
+    "build:watch": "rm -rf dist && tsc --watch",
+    "preversion": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "CHANGEME",
+  "devDependencies": {
+    "@types/express": "^4.17.2",
+    "@types/jest": "^24.0.16",
+    "@types/lodash": "^4.14.136",
+    "@types/node": "^12.6.9",
+    "@types/uuid": "^3.4.6",
+    "jest": "^24.8.0",
+    "lodash": "^4.17.15",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "uuid": "^3.3.3"
+  }
+}

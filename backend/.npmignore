@@ -1,0 +1,11 @@
+/coverage
+/tsconfig.json
+/dockerfile-test-runner
+/jest.config.js
+/.circleci
+/docker-compose.yml
+/test
+/docs
+/src
+/dist/test
+!/package-lock.json

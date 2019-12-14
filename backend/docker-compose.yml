@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+
+  test-runner:
+    build:
+      context: .
+      dockerfile: dockerfile-test-runner
+    volumes:
+      - ./src:/app/src:ro
+      - ./test:/app/test:ro
+      - ./jest.config.js:/app/jest.config.js:ro
