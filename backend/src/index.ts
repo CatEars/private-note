@@ -95,10 +95,16 @@ const main = () => {
 };
 
 if (require.main === module) {
+    process.on('SIGINT', function() {
+        console.log("Caught interrupt signal");
+        process.exit();
+    });
+
     setInterval(() => {
         console.log('NOTES:', notes);
         console.log('LOGS:', log);
         cleanMessages();
     }, 5000);
+
     main();
 }
