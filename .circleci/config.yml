@@ -36,9 +36,8 @@ jobs:
       - image: node:lts-alpine
     working_directory: ~/private-note
     steps:
-      - run: apk add ca-certificates git openssh-client
+      - run: apk add ca-certificates git openssh-client docker
       - checkout
-      - setup_remote_docker
       - run:
           name: Build app and push image
           command: |
