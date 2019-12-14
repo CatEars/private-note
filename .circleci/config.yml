@@ -57,7 +57,9 @@ jobs:
             ./print_rev_info.sh > revinfo.txt
             docker build . -t catears/private-note:${CIRCLE_BRANCH:1} -f dockerfile-private-note
             echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+            docker tag catears/private-note:${CIRCLE_BRANCH:1} catears/private-note:latest
             docker push catears/private-note:${CIRCLE_BRANCH:1}
+            docker push catears/private-note:latest
 
   test-frontend:
     docker:
