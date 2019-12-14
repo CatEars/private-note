@@ -63,3 +63,15 @@ jobs:
           root: ~/repo
           paths: .
 
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test-frontend:
+          filters:
+            tags:
+              only: /.*/
+      - test-backend:
+          filters:
+            tags:
+              only: /.*/
