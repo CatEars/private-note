@@ -38,12 +38,12 @@ accessed and is shown to the user.
 
 At this point the user will send the link and the password to the receiver over
 the appropriate channels. The receiver will go to the link and the server will
-send the encrypted secret, the salt and the iv to the receiver. The server will
-redirect to an error page if the note has already been accessed more times than
-allowed. The receiver then gets the option to enter the password. The password
-then goes through the same process as when the writer encrypted the original
-text. If the fingerprint of the decrypted text is equal to the fingerprint sent
-from the server the receiver will be able to copy the secret to their clipboard,
-or view it in a textfield.
+send the encrypted secret, the salt, the fingerprint and the iv to the receiver.
+The server will redirect to an error page if the note has already been accessed
+more times than allowed. The receiver then gets the option to enter the
+password. The password then goes through the same process as when the writer
+encrypted the original text. If the fingerprint of the decrypted text is equal
+to the fingerprint sent from the server the receiver will be able to copy the
+secret to their clipboard, or view it in a textfield.
 
 
