@@ -21,16 +21,20 @@ const isUuidV4 = (id: any) => {
     )
 }
 
+const isArray = (val: any) => {
+    return val && val.length !== undefined
+}
+
 const validateNote = (note: any) => {
     return (
         Number.isInteger(note.allowedReads) &&
         note.allowedReads > 0 &&
         Number.isInteger(note.burnDate) &&
         note.burnDate > Date.now() &&
-        typeof note.base64EncryptedMessage === 'string' &&
-        typeof note.base64Fingerprint === 'string' &&
-        typeof note.base64IV === 'string' &&
-        typeof note.base64Salt === 'string'
+        isArray(note.encryptedMessage) &&
+        isArray(note.fingerprint) &&
+        isArray(note.IV) &&
+        isArray(note.salt)
     )
 }
 
@@ -77,18 +81,18 @@ const main = async () => {
             try {
                 const {
                     allowedReads,
-                    base64EncryptedMessage,
-                    base64Fingerprint,
-                    base64IV,
-                    base64Salt,
+                    encryptedMessage,
+                    fingerprint,
+                    IV,
+                    salt,
                     burnDate,
                 } = req.body
                 const note: database.Note = {
                     allowedReads,
-                    base64EncryptedMessage,
-                    base64Fingerprint,
-                    base64IV,
-                    base64Salt,
+                    encryptedMessage,
+                    fingerprint,
+                    IV,
+                    salt,
                     burnDate,
                 }
 

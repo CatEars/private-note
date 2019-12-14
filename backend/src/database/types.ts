@@ -13,10 +13,10 @@ export type LogId = string
  */
 export interface Note {
     allowedReads: number
-    base64EncryptedMessage: string
-    base64Fingerprint: string
-    base64IV: string
-    base64Salt: string
+    encryptedMessage: number[]
+    fingerprint: number[]
+    IV: number[]
+    salt: number[]
     burnDate: number
 }
 
