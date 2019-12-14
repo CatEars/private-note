@@ -13,11 +13,9 @@ jobs:
           rm -rf *
           git clone https://github.com/CatEars/private-note.git .
 
-      # Download and cache dependencies
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
       - run: npm install
@@ -27,12 +25,10 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests!
       - run: npm test
       - run: npm run build
-      - run: cd ..
       - persist_to_workspace:
-          root: ~/repo
+          root: ~/private-note
           paths: .
 
   test-frontend:
@@ -47,11 +43,9 @@ jobs:
           rm -rf *
           git clone https://github.com/CatEars/private-note.git .
 
-      # Download and cache dependencies
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
       - run: npm install
@@ -61,12 +55,10 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests!
-      - run: npm test
+      - run: npm test-ci
       - run: npm run build
-      - run: cd ..
       - persist_to_workspace:
-          root: ~/repo
+          root: ~/private-note
           paths: .
 
 workflows:
