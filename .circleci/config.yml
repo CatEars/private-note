@@ -7,11 +7,15 @@ jobs:
     working_directory: ~/private-note/backend
 
     steps:
-      - run: apk add ca-certificates git openssh-client
-      - run: |
-          cd ~/private-note
-          rm -rf *
-          git clone https://github.com/CatEars/private-note.git .
+      - run:
+          name: Install Dependencies
+          command: apk add ca-certificates git openssh-client
+      - run:
+          name: Clone Repository
+          command: |
+            cd ~/private-note
+            rm -rf *
+            git clone https://github.com/CatEars/private-note.git .
 
       - restore_cache:
           keys:
@@ -33,22 +37,29 @@ jobs:
 
   deploy-docker:
     docker:
-      - image: ubuntu
+      - image: node:lts-alpine
     working_directory: ~/private-note
     steps:
+      - run:
+          name: Install Dependencies
+          command: apk add ca-certificates git openssh-client docker
       - checkout
       - setup_remote_docker
-      - run: |
-          cd frontend
-          npm ci
-          npm run build
-          cp build ../backend/static
-          cd ../backend
-          npm ci
-          docker build . -t catears/private-note:$CIRCLE_BRANCH -f dockerfile-private-note
-          ./print_rev_info.sh > revinfo.txt
-          echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME
-          docker push catears/private-note:$CIRCLE_BRANCH
+      - run:
+          name: Build app and push image
+          command: |
+            cd frontend
+            npm ci
+            npm run build
+            cp -r build ../backend/static
+            cd ../backend
+            npm ci
+            ./print_rev_info.sh > revinfo.txt
+            docker build . -t catears/private-note:${CIRCLE_BRANCH:1} -f dockerfile-private-note
+            echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+            docker tag catears/private-note:${CIRCLE_BRANCH:1} catears/private-note:latest
+            docker push catears/private-note:${CIRCLE_BRANCH:1}
+            docker push catears/private-note:latest
 
   test-frontend:
     docker:
@@ -56,11 +67,15 @@ jobs:
 
     working_directory: ~/private-note/frontend
     steps:
-      - run: apk add ca-certificates git openssh-client
-      - run: |
-          cd ~/private-note
-          rm -rf *
-          git clone https://github.com/CatEars/private-note.git .
+      - run:
+          name: Install Dependencies
+          command: apk add ca-certificates git openssh-client
+      - run:
+          name: Clone Repository
+          command: |
+            cd ~/private-note
+            rm -rf *
+            git clone https://github.com/CatEars/private-note.git .
 
       - restore_cache:
           keys:
