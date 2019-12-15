@@ -6,15 +6,9 @@ import { Note } from './Note.jsx'
 import { LinkLoading } from './LinkLoading.jsx'
 import { Link } from './Link.jsx'
 import { Form } from './Form.jsx'
+import { encryptMessage, decryptMessage } from './secrets'
 
-const mock = true
-
-const sameArray = (array1: any, array2: any) => {
-    return (
-        array1.length === array2.length &&
-        array1.every((elem: any, idx: number) => elem === array2[idx])
-    )
-}
+const mock = false
 
 const apiPost = (path: string, body: any) => {
     const url = `${window.location.origin}${path}`
@@ -34,115 +28,39 @@ const apiGet = (path: string) => {
     })
 }
 
-const getRandomSalt = () => {
-    const array = new Uint32Array(12)
-    window.crypto.getRandomValues(array)
-    return array
-}
-
-const getRandomIV = () => {
-    const array = new Uint32Array(12)
-    window.crypto.getRandomValues(array)
-    return array
-}
-
-const generateKey = async (password: string, salt: any) => {
-    const encoder = new TextEncoder()
-    const keyMaterial = await window.crypto.subtle.importKey(
-        'raw',
-        encoder.encode(password),
-        'PBKDF2',
-        false,
-        ['deriveBits', 'deriveKey']
-    )
-    const key = await window.crypto.subtle.deriveKey(
-        {
-            name: 'PBKDF2',
-            salt,
-            iterations: 100000,
-            hash: 'SHA-512',
-        },
-        keyMaterial,
-        {
-            name: 'AES-GCM',
-            length: 256,
-        },
-        false,
-        ['encrypt', 'decrypt']
-    )
-
-    return key
-}
-
-const fingerprint = async (message: string) => {
-    const data = new TextEncoder().encode(message)
-    const hash = await window.crypto.subtle.digest('SHA-512', data)
-    return hash
-}
-
-const encryptMessage = async (message: string, password: string) => {
-    const salt = getRandomSalt()
-    const IV = getRandomIV()
-    const key = await generateKey(password, salt)
-    const encoder = new TextEncoder()
-    const digest = await fingerprint(message)
-    const encrypted = await window.crypto.subtle.encrypt(
-        {
-            name: 'AES-GCM',
-            length: 256,
-            iv: IV,
-        },
-        key,
-        encoder.encode(message)
-    )
-
-    return {
-        encryptedMessage: encrypted,
-        IV,
-        salt,
-        fingerprint: digest,
-    }
-}
-
-const decryptMessage = async (password: string, params: any) => {
-    const { encryptedMessage, IV, salt, fingerprint: digest } = params
-
-    const key = await generateKey(password, salt)
-    const decrypted = await window.crypto.subtle.decrypt(
-        {
-            name: 'AES-GCM',
-            iv: IV,
-            length: 256,
-        },
-        key,
-        encryptedMessage
-    )
-
-    const decodedMessage = new TextDecoder().decode(decrypted)
-    const decryptDigest = new Uint32Array(
-        await fingerprint(new TextDecoder().decode(decrypted))
-    )
-    const origDigest = new Uint32Array(digest)
-    if (!sameArray(decryptDigest, origDigest)) {
-        // Technically AES-GCM already contains an integrity check but I want to
-        // extend the api so that it records what algorithms have been used
-        // for key derivation and encryption. Therefore I do not want to rely on AES-GCM
-
-        throw new Error('Digest are not matching. Wrong message obtained...')
-    }
-
-    return decodedMessage
-}
-
-const createNote = async (message: string, burnDate: number) => {
+const createNote = async (
+    message: string,
+    password: string,
+    burnDate: number
+) => {
     if (mock) {
         return '744fa5c0-5511-420d-abd3-eaedf7e29e2a'
     } else {
-        const response = await apiPost('/api/note', {
-            message,
+        const {
+            encryptedMessage,
+            IV,
+            salt,
+            fingerprint,
+        } = await encryptMessage(message, password)
+        const note = {
+            allowedReads: 1,
+            encryptedMessage: Array.prototype.slice.call(
+                new Uint32Array(encryptedMessage)
+            ),
+            fingerprint: Array.prototype.slice.call(
+                new Uint32Array(fingerprint)
+            ),
+            IV: Array.prototype.slice.call(IV),
+            salt: Array.prototype.slice.call(salt),
             burnDate,
-        })
+        }
+        console.log('NOTE')
+        console.log(note)
+        console.log('Creating note')
+        const response = await apiPost('/api/note', note)
+        console.log('repsponse!')
         const { ID } = await response.json()
+        console.log('ID=' + ID)
         return ID
     }
 }
@@ -154,11 +72,28 @@ const getNote = async (id: string) => {
             burnDate: Date.now() + 10000,
         }
     } else {
+        console.log('ID:' + id)
         const response = await apiGet(`/api/note/${id}`)
         if (!response.ok) {
             throw new Error(`Getting ${id} did not work!`)
         }
-        return await response.json()
+        console.log('response:')
+        console.log(response)
+        const note = await response.json()
+        console.log('note')
+        console.log(note)
+        note.encryptedMessage = new Uint32Array(note.encryptedMessage).buffer
+        note.fingerprint = new Uint32Array(note.fingerprint).buffer
+        note.IV = new Uint32Array(note.IV)
+        note.salt = new Uint32Array(note.salt)
+        console.log('NOTE')
+        console.log(note)
+        const password = 'password123'
+        const decryptedMessage = await decryptMessage(password, note)
+        return {
+            message: decryptedMessage,
+            burnDate: note.burnDate,
+        }
     }
 }
 
@@ -181,10 +116,14 @@ const App = () => {
     const [noteFailed, setNoteFailed] = useState(false)
 
     const onCreateNote = (message: string, burnDate: number) => {
+        const password = 'password123'
         setCreatedNoteId('1234')
-        createNote(message, burnDate).then(id => {
-            setCreatedNoteId(id)
-        })
+        console.log('Time to create note????')
+        createNote(message, password, burnDate)
+            .then(id => {
+                setCreatedNoteId(id)
+            })
+            .catch(console.error)
     }
 
     const doLoadNote = (noteId: string) => {
@@ -193,8 +132,9 @@ const App = () => {
             .then(note => {
                 setNote(note)
             })
-            .catch(() => {
+            .catch(err => {
                 setNoteFailed(true)
+                console.error(err)
             })
     }
 

@@ -16,7 +16,8 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "test-ci": "react-scripts test --watchAll=false",
-        "eject": "react-scripts eject"
+        "eject": "react-scripts eject",
+        "quick-build": "rm -rf ../backend/static/* && react-scripts build && cp -r build/* ../backend/static/"
     },
     "eslintConfig": {
         "extends": "react-app"

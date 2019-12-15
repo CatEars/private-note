@@ -51,6 +51,7 @@ const main = async () => {
             try {
                 const { ID } = req.params
                 if (!isUuidV4(ID)) {
+                    console.error(`ID "${ID}" is not a valid UUIDv4`)
                     res.sendStatus(400)
                     return
                 }
@@ -67,7 +68,7 @@ const main = async () => {
                 const note = await db.getNote(ID, options)
 
                 console.log(`Retrieved note "${ID}" and sending it back`)
-                res.send(note)
+                res.json(note)
             } catch (error) {
                 console.error('GET /api/note/:ID', error)
                 res.sendStatus(500)
@@ -97,13 +98,15 @@ const main = async () => {
                 }
 
                 if (!validateNote(note)) {
+                    console.error(`NOTE: ${note} was not a valid note!`)
+                    console.error(JSON.stringify(note))
                     res.sendStatus(400)
                     return
                 }
 
                 await createLog(req)
                 const ID = await db.storeNote(note)
-                res.send({ ID })
+                res.json({ ID })
             } catch (error) {
                 console.error('POST /api/note', error)
                 res.sendStatus(500)

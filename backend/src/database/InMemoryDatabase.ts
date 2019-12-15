@@ -59,7 +59,7 @@ export class InMemoryDatabase implements Database {
         }
 
         const currentTime = Date.now()
-        if (checkBurnDate && note.burnDate >= currentTime) {
+        if (checkBurnDate && currentTime >= note.burnDate) {
             const A = new Date(note.burnDate)
             const B = new Date(currentTime)
             throw new Error(
