@@ -64,7 +64,7 @@ const main = async () => {
                     checkAllowedReads: true,
                     checkBurnDate: true,
                 }
-                const note = await db.getNote(ID)
+                const note = await db.getNote(ID, options)
 
                 console.log(`Retrieved note "${ID}" and sending it back`)
                 res.send(note)
@@ -124,10 +124,10 @@ const main = async () => {
 }
 
 if (require.main === module) {
-    process.on('SIGINT', function() {
+    process.on('SIGINT', async () => {
         console.log('Caught interrupt signal')
-        process.exit()
         await db.stopDatabase()
+        process.exit()
     })
 
     setInterval(() => {

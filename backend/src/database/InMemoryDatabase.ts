@@ -44,15 +44,15 @@ export class InMemoryDatabase implements Database {
         } = options
 
         if (!this.storage.notes[noteId]) {
-            throw new Exception(`Note with Id "${noteId}" did not exist.`)
+            throw new Error(`Note with Id "${noteId}" did not exist.`)
         }
 
         const note = this.storage.notes[noteId]
-        const currentAccesses = this.storage.accesses[id]
+        const currentAccesses = this.storage.accesses[noteId]
         if (checkAllowedReads && currentAccesses.length >= note.allowedReads) {
             const A = note.allowedReads
             const B = currentAccesses.length
-            throw new Exception(
+            throw new Error(
                 `Note with Id "${noteId}" allows only ${A} reads but ` +
                     `currently has ${B} reads`
             )
@@ -62,14 +62,14 @@ export class InMemoryDatabase implements Database {
         if (checkBurnDate && note.burnDate >= currentTime) {
             const A = new Date(note.burnDate)
             const B = new Date(currentTime)
-            throw new Exception(
+            throw new Error(
                 `Note with id "${noteId}" allows only access before ${A} ` +
                     `but currently it is ${B}`
             )
         }
 
         if (addAccess) {
-            this.storage.accesses[id].push(accessInfo)
+            this.storage.accesses[noteId].push(accessInfo)
         }
 
         return note
@@ -77,7 +77,7 @@ export class InMemoryDatabase implements Database {
 
     async getLog(logId: LogId) {
         if (!this.storage.logs[logId]) {
-            throw new Exception(`Log with Id "${logId}" did not exist.`)
+            throw new Error(`Log with Id "${logId}" did not exist.`)
         }
 
         return this.storage.logs[logId]
