@@ -42,7 +42,7 @@ jobs:
     steps:
       - run:
           name: Install Dependencies
-          command: apk add ca-certificates git openssh-client docker
+          command: apk add ca-certificates git openssh-client docker curl
       - checkout
       - setup_remote_docker
       - run:
@@ -61,6 +61,7 @@ jobs:
             docker tag catears/private-note:${CIRCLE_BRANCH:1} catears/private-note:latest
             docker push catears/private-note:${CIRCLE_BRANCH:1}
             docker push catears/private-note:latest
+            curl -X POST $MICROBADGER_WEBHOOK
 
   test-frontend:
     docker:
