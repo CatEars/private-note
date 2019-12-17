@@ -1,12 +1,19 @@
 version: '3'
 
 services:
+    app:
+        build:
+            context: .
+            dockerfile: dockerfile-nodemon
+        volumes:
+            - ./src:/app/src:ro
+            - ../frontend/build:/app/static:ro
 
-  test-runner:
-    build:
-      context: .
-      dockerfile: dockerfile-test-runner
-    volumes:
-      - ./src:/app/src:ro
-      - ./test:/app/test:ro
-      - ./jest.config.js:/app/jest.config.js:ro
+    test-runner:
+        build:
+            context: .
+            dockerfile: dockerfile-test-runner
+        volumes:
+            - ./src:/app/src:ro
+            - ./test:/app/test:ro
+            - ./jest.config.js:/app/jest.config.js:ro
