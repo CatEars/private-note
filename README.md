@@ -45,19 +45,26 @@ encrypted the original text. If the fingerprint of the decrypted text is equal
 to the fingerprint sent from the server the receiver will be able to copy the
 secret to their clipboard, or view it in a textfield.
 
+## Development
+
+First time?
+
+```bash
+$ cd frontend && npm i && npm run bootstrap && cd ../backend && npm i
+```
+
+Frontend:
+
+```bash
+$ cd frontend && npm start
+```
+
+Backend:
+
+```bash
+$ cd backend && npm start
+```
+
 # Future Ideas
 
-### Hot reloading for frontend while being served through backend
-
 ### Check that WebAPI features are available in user browser
-
-### Auto-generate key
-
-Use the hash part of the url to encode an auto generated password:
-https://stackoverflow.com/questions/3664257/why-is-the-hash-part-of-the-url-not-available-on-the-server-side
-
-The hash part is not sent to the server (and this is specifically a part of the
-HTML standard). This fact can be used to auto-generate a password with
-[SubtleCrypto.generateKey()](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/generateKey)
-and paste that in to the returned URL client side. This makes the end-to-end
-encryption seamless.
