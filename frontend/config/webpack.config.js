@@ -50,7 +50,7 @@ const sassModuleRegex = /\.module\.(scss|sass)$/
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
-module.exports = function(webpackEnv) {
+module.exports = (function(webpackEnv) {
     const isEnvDevelopment = webpackEnv === 'development'
     const isEnvProduction = webpackEnv === 'production'
 
@@ -171,7 +171,7 @@ module.exports = function(webpackEnv) {
         ].filter(Boolean),
         output: {
             // The build folder.
-            path: isEnvProduction ? paths.appBuild : undefined,
+            path: paths.appBuild,
             // Add /* filename */ comments to generated require()s in the output.
             pathinfo: isEnvDevelopment,
             // There will be one main bundle, and one file per asynchronous chunk.
@@ -695,4 +695,4 @@ module.exports = function(webpackEnv) {
         // our own hints via the FileSizeReporter
         performance: false,
     }
-}
+})(process.env.NODE_ENV)

@@ -10,7 +10,7 @@
         "docker:test:watch": "docker-compose run test-runner",
         "build": "rm -rf dist && tsc",
         "build:watch": "rm -rf dist && tsc --watch",
-        "docker:run": "docker-compose run app",
+        "start": "docker-compose run app",
         "docker:internal:run": "nodemon",
         "preversion": "npm run build"
     },
