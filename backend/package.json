@@ -10,6 +10,8 @@
         "docker:test:watch": "docker-compose run test-runner",
         "build": "rm -rf dist && tsc",
         "build:watch": "rm -rf dist && tsc --watch",
+        "docker:run": "docker-compose run app",
+        "docker:internal:run": "nodemon",
         "preversion": "npm run build"
     },
     "keywords": [],
@@ -23,7 +25,9 @@
         "@types/uuid": "^3.4.6",
         "jest": "^24.8.0",
         "lodash": "^4.17.15",
+        "nodemon": "^2.0.2",
         "ts-jest": "^24.0.2",
+        "ts-node": "^8.5.4",
         "typescript": "^3.5.3"
     },
     "dependencies": {
@@ -40,5 +44,17 @@
         "hooks": {
             "pre-commit": "pretty-quick --staged"
         }
+    },
+    "nodemonConfig": {
+        "ignore": [
+            "test/*",
+            "static/*"
+        ],
+        "delay": 2500,
+        "watch": [
+            "src"
+        ],
+        "ext": "ts",
+        "exec": "ts-node ./src/index.ts"
     }
 }

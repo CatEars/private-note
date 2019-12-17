@@ -1,0 +1,7 @@
+FROM node:10.16.1-alpine
+
+WORKDIR /app
+COPY tsconfig.json package.json package-lock.json ./
+RUN npm i
+
+CMD ["npm", "run", "docker:internal:run"]
