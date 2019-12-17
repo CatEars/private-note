@@ -6,7 +6,13 @@ import { Note } from './Note.jsx'
 import { LinkLoading } from './LinkLoading.jsx'
 import { Link } from './Link.jsx'
 import { Form } from './Form.jsx'
-import { encryptMessage, decryptMessage } from './secrets'
+import {
+    encryptMessage,
+    decryptMessage,
+    urlencodeKey,
+    urldecodeKey,
+    generateKey,
+} from './secrets'
 
 const mock = false
 
@@ -30,28 +36,25 @@ const apiGet = (path: string) => {
 
 const createNote = async (
     message: string,
-    password: string,
+    key: CryptoKey,
     burnDate: number
 ) => {
     if (mock) {
         return '744fa5c0-5511-420d-abd3-eaedf7e29e2a'
     } else {
-        const {
-            encryptedMessage,
-            IV,
-            salt,
-            fingerprint,
-        } = await encryptMessage(message, password)
+        const { encryptedMessage, IV, fingerprint } = await encryptMessage(
+            message,
+            key
+        )
         const note = {
             allowedReads: 1,
             encryptedMessage: Array.prototype.slice.call(
-                new Uint32Array(encryptedMessage)
+                new Uint8Array(encryptedMessage)
             ),
             fingerprint: Array.prototype.slice.call(
-                new Uint32Array(fingerprint)
+                new Uint8Array(fingerprint)
             ),
             IV: Array.prototype.slice.call(IV),
-            salt: Array.prototype.slice.call(salt),
             burnDate,
         }
         console.log('NOTE')
@@ -82,14 +85,15 @@ const getNote = async (id: string) => {
         const note = await response.json()
         console.log('note')
         console.log(note)
-        note.encryptedMessage = new Uint32Array(note.encryptedMessage).buffer
-        note.fingerprint = new Uint32Array(note.fingerprint).buffer
-        note.IV = new Uint32Array(note.IV)
-        note.salt = new Uint32Array(note.salt)
+        note.encryptedMessage = new Uint8Array(note.encryptedMessage).buffer
+        note.fingerprint = new Uint8Array(note.fingerprint).buffer
+        note.IV = new Uint8Array(note.IV)
         console.log('NOTE')
         console.log(note)
-        const password = 'password123'
-        const decryptedMessage = await decryptMessage(password, note)
+        console.log('HASH:', window.location.hash.substr(1))
+        const key = await urldecodeKey(window.location.hash.substr(1))
+        console.log('KEY:', key)
+        const decryptedMessage = await decryptMessage(key, note)
         return {
             message: decryptedMessage,
             burnDate: note.burnDate,
@@ -98,16 +102,10 @@ const getNote = async (id: string) => {
 }
 
 const App = () => {
-    encryptMessage('Hello, World!', 'password123')
-        .then(msg => {
-            return decryptMessage('password123', msg)
-        })
-        .then(decryptication => {
-            console.log('Decrypted message:', decryptication)
-        })
     const currentLocation = window.location.href
     const url = new URL(currentLocation)
     const [createdNoteId, setCreatedNoteId] = useState('')
+    const [createdNoteKey, setCreatedNoteKey] = useState('')
     const [noteLoading, setNoteLoading] = useState(false)
     const [note, setNote] = useState({
         message: 'hello world',
@@ -115,11 +113,23 @@ const App = () => {
     })
     const [noteFailed, setNoteFailed] = useState(false)
 
+    const onKeyGenerated = (key: CryptoKey) => {
+        urlencodeKey(key)
+            .then(encodedString => {
+                console.log('encodedString:', encodedString)
+                setCreatedNoteKey(encodedString)
+            })
+            .catch(console.error)
+    }
+
     const onCreateNote = (message: string, burnDate: number) => {
-        const password = 'password123'
         setCreatedNoteId('1234')
-        console.log('Time to create note????')
-        createNote(message, password, burnDate)
+        generateKey()
+            .then(key => {
+                console.log('KEU', key)
+                onKeyGenerated(key)
+                return createNote(message, key, burnDate)
+            })
             .then(id => {
                 setCreatedNoteId(id)
             })
@@ -143,7 +153,7 @@ const App = () => {
     const uuidRegex = /([0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12})/g
     const urlIncludesUuid = uuidRegex.test(url.pathname)
     const creatingNoteId = createdNoteId === '1234'
-    const showLink = createdNoteId && !creatingNoteId
+    const showLink = createdNoteId && !creatingNoteId && createdNoteKey !== ''
 
     if (noteFailed) {
         app = <NoteFailed />
@@ -156,7 +166,8 @@ const App = () => {
     } else if (creatingNoteId) {
         app = <LinkLoading />
     } else if (showLink) {
-        app = <Link noteId={createdNoteId} />
+        console.log('CREATED NOTE KEY IS:', createdNoteKey)
+        app = <Link noteId={createdNoteId} noteKey={createdNoteKey} />
     } else {
         app = <Form onCreateNote={onCreateNote} />
     }

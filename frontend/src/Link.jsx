@@ -6,12 +6,12 @@ const withinLastFourSeconds = date => {
 }
 
 export const Link = props => {
-    const { noteId } = props
+    const { noteId, noteKey } = props
 
     const [lastCopy, setCopied] = useState(0)
 
     const url = new URL(window.location.href)
-    const linkUrl = `${url.origin}/${noteId}`
+    const linkUrl = `${url.origin}/${noteId}#${noteKey}`
 
     const onCopyClick = event => {
         event.preventDefault()
@@ -37,7 +37,9 @@ export const Link = props => {
         <div className="link">
             {copied}
             <p className="my-3">Here is the link to your message</p>
-            <h1 className="text-4xl my-5 link-linkText">{linkUrl}</h1>
+            <h1 className="text-2xl my-5 mx-10 break-all link-linkText">
+                {linkUrl}
+            </h1>
             <button
                 className="bg-white rounded border shadow py-3 px-5 my-3"
                 onClick={onCopyClick}

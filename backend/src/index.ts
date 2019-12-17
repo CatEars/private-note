@@ -33,8 +33,7 @@ const validateNote = (note: any) => {
         note.burnDate > Date.now() &&
         isArray(note.encryptedMessage) &&
         isArray(note.fingerprint) &&
-        isArray(note.IV) &&
-        isArray(note.salt)
+        isArray(note.IV)
     )
 }
 
@@ -85,7 +84,6 @@ const main = async () => {
                     encryptedMessage,
                     fingerprint,
                     IV,
-                    salt,
                     burnDate,
                 } = req.body
                 const note: database.Note = {
@@ -93,7 +91,6 @@ const main = async () => {
                     encryptedMessage,
                     fingerprint,
                     IV,
-                    salt,
                     burnDate,
                 }
 
