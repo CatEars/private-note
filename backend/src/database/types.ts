@@ -16,7 +16,6 @@ export interface Note {
     encryptedMessage: number[]
     fingerprint: number[]
     IV: number[]
-    salt: number[]
     burnDate: number
 }
 
