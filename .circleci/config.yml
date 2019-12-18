@@ -91,9 +91,9 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
+      - run: npm run build:styles
       - run: npm run test-ci
       - run: npm run build
-      - run: npm run build:styles
       - persist_to_workspace:
           root: ~/private-note
           paths: .
