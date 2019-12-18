@@ -62,7 +62,7 @@
         "workbox-webpack-plugin": "4.3.1"
     },
     "scripts": {
-        "build:styles": "tailwind build src/tailwind-include.css -o src/tailwind.css",
+        "build:styles": "tailwind build vendor/tailwind-include.css -o src/tailwind.css",
         "bootstrap": "npm run build:styles",
         "start": "NODE_ENV=development webpack --watch --config ./config/webpack.config.js",
         "build": "node scripts/build.js",
