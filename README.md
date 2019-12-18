@@ -7,43 +7,49 @@
 A simple and free application that uses basic end to end encryption to share
 secrets. Once read, the secrets are destroyed.
 
+#### Try it out with docker
+
+```
+docker run -p 3000:3000 catears/private-note
+```
+
+and visit [http://localhost:3000](http://localhost:3000).
+
 ## Security
 
-All notes are encrypted with a password when sent to the private-note server.
-The encryption mechanism uses
-[Crypto.subtle](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/subtle)
-to derive a key from the password.
+A user, the writer, wants to create a note. When the user has written the
+message and entered the time to live for the note, the page will do the
+following:
 
-The flow looks like this:
+The page will generate a a random IV using
+[Crypto.getRandomValues()](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues)
+and generate a key using
+[SubtleCrypto.generateKey()](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/generateKey).
 
-A user, the writer, wants to create a note. The landing page will generate a
-random salt and a random iv using
-[Crypto.getRandomValues()](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues).
-The user will enter a password and the landing page will derive an encryption
-key from the password and the salt using
-[SubtleCrypto.deriveKey()](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/deriveKey)
-with PBKDF2. When the user submits the secret note, the page will encrypt the
-note using the derived key, the randomly generated iv and
-[SubtleCrypto.encrypt()](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt)
-in AES-GCM mode. The page will also generate a fingerprint/digest from the
-original text using
-[SubtleCrypto.digest()](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest)
-with SHA-512. The page will then send the encrypted text, the salt, the iv, a
-fingerprint of the original text, the time to live for the note, the number of
-reads allowed before burned and any other miscellaneous information as a POST
-request to the server. The server will create a note in the database and send
-back a uuid (v4), that uuid is then used to build the URL where the note can be
-accessed and is shown to the user.
+The note will be encrypted, using AES-GCM, with the generated key and the IV
+with the help of
+[SubtleCrypto.encrypt()](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt).
 
-At this point the user will send the link and the password to the receiver over
-the appropriate channels. The receiver will go to the link and the server will
-send the encrypted secret, the salt, the fingerprint and the iv to the receiver.
-The server will redirect to an error page if the note has already been accessed
-more times than allowed. The receiver then gets the option to enter the
-password. The password then goes through the same process as when the writer
-encrypted the original text. If the fingerprint of the decrypted text is equal
-to the fingerprint sent from the server the receiver will be able to copy the
-secret to their clipboard, or view it in a textfield.
+Additionally, the page will also generate a fingerprint of the original message,
+with SHA-512, using
+[SubtleCrypto.digest()](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest).
+
+The page will then send the encrypted message, the IV, the fingerprint and the
+time to live for the note to the server, where it will be stored. The server
+will reply with a unique ID (uuid v4). The page will then create and show a link
+with the uuid and a urlencoded key. The key is part of the fragment of the url,
+which is never sent to the server.
+
+At this point the user will send the link to the receiver over the appropriate
+channels. The receiver will go to the link and the server will send the
+encrypted secret, the salt, the fingerprint and the IV to the receiver. The
+server will redirect to an error page if the note has already been accessed more
+times than allowed. Otherwise, the page will automatically decode the key, that
+is part of the URL, and use it to decrypt the encrypted message. If the
+fingerprint of the decrypted text is equal to the fingerprint sent from the
+server the receiver will be able to view it in a textfield and copy the it to
+their clipboard. If the fingerprint is not equal to the expected value, an error
+message will be shown.
 
 ## Development
 
@@ -53,18 +59,16 @@ First time?
 $ cd frontend && npm i && npm run bootstrap && cd ../backend && npm i
 ```
 
-Frontend:
+Start frontend in one terminal:
 
 ```bash
 $ cd frontend && npm start
 ```
 
-Backend:
+Start backend in another terminal/tab:
 
 ```bash
 $ cd backend && npm start
 ```
 
-# Future Ideas
-
-### Check that WebAPI features are available in user browser
+and then head to `http://localhost:3000/`.
