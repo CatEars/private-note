@@ -1,5 +1,19 @@
 import express from 'express'
 import * as database from './database'
+import rateLimit from 'express-rate-limit'
+
+const JSON_MAX_SIZE = Number.parseInt(process.env.JSON_MAX_SIZE || '100kb')
+const LIMIT_WINDOW_MS = Number.parseInt(
+    process.env.LIMIT_WINDOW_MS || `${15 * 60 * 8 * 1000}`
+)
+const MAX_REQUEST_RATE_LIMIT = Number.parseInt(
+    process.env.MAX_REQUEST_RATE_LIMIT || '100'
+)
+
+const LIMITER = rateLimit({
+    windowMs: LIMIT_WINDOW_MS,
+    max: MAX_REQUEST_RATE_LIMIT,
+})
 
 const db = new database.InMemoryDatabase()
 
@@ -41,7 +55,12 @@ const main = async () => {
     await db.startDatabase()
 
     const app = express()
-    app.use(express.json())
+    app.use(
+        express.json({
+            limit: JSON_MAX_SIZE,
+        })
+    )
+    app.use('/api', LIMITER)
     app.use(express.static('./static'))
 
     app.get(
