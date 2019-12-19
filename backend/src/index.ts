@@ -1,6 +1,7 @@
 import express from 'express'
 import * as database from './database'
 import rateLimit from 'express-rate-limit'
+import helmet from 'helmet'
 
 const JSON_MAX_SIZE = Number.parseInt(process.env.JSON_MAX_SIZE || '100kb')
 const LIMIT_WINDOW_MS = Number.parseInt(
@@ -61,6 +62,7 @@ const main = async () => {
         })
     )
     app.use('/api', LIMITER)
+    app.use(helmet())
     app.use(express.static('./static'))
 
     app.get(
