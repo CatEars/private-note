@@ -155,7 +155,7 @@ const App = () => {
 
     return (
         <ErrorBoundary>
-            <div className="flex flex-col bg-indigo-200 h-full w-full text-center content-center mx-auto">
+            <div className="flex flex-col bg-indigo-200 h-screen w-full text-center content-center mx-auto">
                 {app}
             </div>
         </ErrorBoundary>

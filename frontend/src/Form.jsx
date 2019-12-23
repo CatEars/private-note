@@ -77,20 +77,20 @@ export const Form = props => {
 
     return (
         <div className="mx-auto my-4 flex flex-col w-2/3">
-            <p className="secretForm-message">
+            <p className="text-xl secretForm-message ">
                 Enter your secret and get a "use only once" link!
             </p>
             <form className="flex flex-col my-4">
                 <textarea
                     id="message"
-                    className="my-2 h-30 resize-none border rounded px-1 shadow"
+                    className="py-2 my-2 xl:h-64 md:h-30 resize-none border rounded px-2 shadow"
                     value={messageText}
                     placeholder={'Enter message here...'}
                     onChange={onMessageChange}
                 />
 
                 <div
-                    className="container flex flex-row mx-auto my-5"
+                    className="text-xl container flex flex-row mx-auto my-5"
                     onClick={() => ''}
                 >
                     <button className={secondsClasses} onClick={onSecondSelect}>
@@ -106,14 +106,14 @@ export const Form = props => {
                     </button>
                 </div>
 
-                <label className="my-2" htmlFor="removalTime">
+                <label className="text-xl my-2" htmlFor="removalTime">
                     Time until removed ({selectedConversion})
                 </label>
 
                 <input
                     type="text"
                     id="removalTime"
-                    className="my-2 border rounded px-1 w-1/2 mx-auto shadow"
+                    className="py-2 my-2 border rounded px-2 w-1/2 mx-auto shadow"
                     value={timeUntilRemoved > 0 ? timeUntilRemoved : ''}
                     onChange={onTimeChange}
                 />
@@ -121,7 +121,7 @@ export const Form = props => {
                 <input
                     type="submit"
                     value="Submit"
-                    className="mx-auto w-1/2 rounded shadow"
+                    className="py-2 px-2 mx-auto w-1/2 rounded shadow"
                     onClick={onClickSubmit}
                 />
             </form>

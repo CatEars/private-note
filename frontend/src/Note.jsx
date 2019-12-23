@@ -43,7 +43,7 @@ export const Note = props => {
                     You are viewing note:{' '}
                     <span className="font-bold">{noteId}</span>
                 </h2>
-                <p className="resize-none my-5 my-2 text-left px-3 content-start border rounded-b shadow bg-white">
+                <p className="resize-none my-5 my-2 py-2 text-left px-3 content-start border rounded-b shadow bg-white">
                     {note.message}
                 </p>
                 <button
@@ -52,9 +52,12 @@ export const Note = props => {
                 >
                     Copy
                 </button>
-                <p className="my-3">
-                    Burns up in{' '}
-                    <span className="font-bold">{humanize(burnIn)}</span>
+                <p className="my-3 text-xl">
+                    <span className="font-bold">Note</span>: Make sure to
+                    <span className="font-bold"> save</span> the note
+                    <span className="font-bold"> now</span>. It will
+                    <span className="font-bold"> not</span> be accesible if you
+                    reload or open the link again.
                 </p>
             </div>
         </div>

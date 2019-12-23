@@ -36,10 +36,16 @@ export const Link = props => {
     return (
         <div className="link">
             {copied}
-            <p className="my-3">Here is the link to your message</p>
-            <h1 className="text-2xl my-5 mx-10 break-all link-linkText">
-                {linkUrl}
-            </h1>
+            <p className="sm:my-3 lg:my-10 text-xl">
+                Here is the link to your message
+            </p>
+            <div className="bg-white mx-5 my-2 lg:w-1/2 lg:mx-auto">
+                <i>
+                    <h1 className="text-m my-5 mx-5 break-all link-linkText">
+                        {linkUrl}
+                    </h1>
+                </i>
+            </div>
             <button
                 className="bg-white rounded border shadow py-3 px-5 my-3"
                 onClick={onCopyClick}
