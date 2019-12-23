@@ -12,6 +12,7 @@ import {
     urlencodeKey,
     urldecodeKey,
     generateKey,
+    getEncryptionScheme,
 } from './secrets'
 
 const apiPost = (path: string, body: any) => {
@@ -49,6 +50,7 @@ const createNote = async (
         fingerprint: Array.prototype.slice.call(new Uint8Array(fingerprint)),
         IV: Array.prototype.slice.call(IV),
         burnDate,
+        encryptionScheme: getEncryptionScheme(),
     }
     console.log('POSTing note to API')
     const response = await apiPost('/api/note', note)

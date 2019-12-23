@@ -1,3 +1,10 @@
+const KEYSTYLE = 'raw'
+const ENCRYPT_PARAMS = {
+    name: 'AES-GCM',
+    length: 256,
+}
+const FINGERPRINT_MODE = 'SHA-512'
+
 const sameArray = (array1: any, array2: any) => {
     return (
         array1.length === array2.length &&
@@ -13,23 +20,19 @@ const getRandomIV = () => {
 
 const fingerprint = async (message: string) => {
     const data = new TextEncoder().encode(message)
-    const hash = await window.crypto.subtle.digest('SHA-512', data)
+    const hash = await window.crypto.subtle.digest(FINGERPRINT_MODE, data)
     return hash
 }
 
 export const generateKey = async () => {
-    return await window.crypto.subtle.generateKey(
-        {
-            name: 'AES-GCM',
-            length: 256,
-        },
-        true,
-        ['encrypt', 'decrypt']
-    )
+    return await window.crypto.subtle.generateKey(ENCRYPT_PARAMS, true, [
+        'encrypt',
+        'decrypt',
+    ])
 }
 
 export const urlencodeKey = async (key: CryptoKey) => {
-    const exported = await window.crypto.subtle.exportKey('raw', key)
+    const exported = await window.crypto.subtle.exportKey(KEYSTYLE, key)
     const array = new Uint8Array(exported)
     const asJSArray = Array.prototype.slice.call(array)
     return encodeURIComponent(JSON.stringify(asJSArray))
@@ -39,9 +42,9 @@ export const urldecodeKey = async (val: string) => {
     const jsonArray = JSON.parse(decodeURIComponent(val))
     const asUint8 = new Uint8Array(jsonArray)
     return await window.crypto.subtle.importKey(
-        'raw',
+        KEYSTYLE,
         asUint8,
-        'AES-GCM',
+        ENCRYPT_PARAMS.name,
         true,
         ['encrypt', 'decrypt']
     )
@@ -53,9 +56,9 @@ export const encryptMessage = async (message: string, key: CryptoKey) => {
     const digest = await fingerprint(message)
     const encrypted = await window.crypto.subtle.encrypt(
         {
-            name: 'AES-GCM',
-            length: 256,
+            name: ENCRYPT_PARAMS.name,
             iv: IV,
+            length: ENCRYPT_PARAMS.length,
         },
         key,
         encoder.encode(message)
@@ -73,9 +76,9 @@ export const decryptMessage = async (key: CryptoKey, params: any) => {
 
     const decrypted = await window.crypto.subtle.decrypt(
         {
-            name: 'AES-GCM',
+            name: ENCRYPT_PARAMS.name,
             iv: IV,
-            length: 256,
+            length: ENCRYPT_PARAMS.length,
         },
         key,
         encryptedMessage
@@ -94,3 +97,9 @@ export const decryptMessage = async (key: CryptoKey, params: any) => {
 
     return decodedMessage
 }
+
+export const getEncryptionScheme = async () => ({
+    encrypt: ENCRYPT_PARAMS,
+    fingerprint: FINGERPRINT_MODE,
+    keystyle: KEYSTYLE,
+})
