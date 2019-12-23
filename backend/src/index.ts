@@ -106,6 +106,7 @@ const main = async () => {
                     fingerprint,
                     IV,
                     burnDate,
+                    encryptionScheme,
                 } = req.body
                 const note: database.Note = {
                     allowedReads,
@@ -113,6 +114,7 @@ const main = async () => {
                     fingerprint,
                     IV,
                     burnDate,
+                    encryptionScheme,
                 }
 
                 if (!validateNote(note)) {
