@@ -9,6 +9,8 @@ RUN npm i && npm run build
 FROM node:10.16.1-alpine
 
 RUN apk add curl
+RUN addgroup appuser && adduser -S -G appuser
+USER appuser
 
 WORKDIR /app
 COPY ./static ./static
