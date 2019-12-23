@@ -17,6 +17,7 @@ export interface Note {
     fingerprint: number[]
     IV: number[]
     burnDate: number
+    encryptionScheme?: any
 }
 
 /**
