@@ -3,7 +3,7 @@ import * as database from './database'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 
-const JSON_MAX_SIZE = Number.parseInt(process.env.JSON_MAX_SIZE || '100kb')
+const JSON_MAX_SIZE = process.env.JSON_MAX_SIZE || '1mb'
 const LIMIT_WINDOW_MS = Number.parseInt(
     process.env.LIMIT_WINDOW_MS || `${15 * 60 * 8 * 1000}`
 )
