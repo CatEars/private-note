@@ -98,7 +98,7 @@ export const decryptMessage = async (key: CryptoKey, params: any) => {
     return decodedMessage
 }
 
-export const getEncryptionScheme = async () => ({
+export const getEncryptionScheme = () => ({
     encrypt: ENCRYPT_PARAMS,
     fingerprint: FINGERPRINT_MODE,
     keystyle: KEYSTYLE,
