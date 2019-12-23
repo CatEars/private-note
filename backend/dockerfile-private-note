@@ -22,6 +22,6 @@ COPY --from=0 /app/dist ./dist
 
 RUN npm i --production
 
-HEALTHCHECK ["curl", "http://localhost:3000"]
+HEALTHCHECK CMD curl --fail http://localhost:3000 || exit 1
 
 CMD ["node", "dist/src/index.js"]
