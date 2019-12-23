@@ -7,11 +7,19 @@ COPY src/ ./src/
 RUN npm i && npm run build
 
 FROM node:10.16.1-alpine
+
+RUN apk add curl
+
 WORKDIR /app
 COPY ./static ./static
 # If any revision info is present, copy it into here.
 COPY revinfo* .
+
 COPY --from=0 /app/package.json ./package.json
 COPY --from=0 /app/dist ./dist
+
 RUN npm i --production
+
+HEALTHCHECK ["curl", "http://localhost:3000"]
+
 CMD ["node", "dist/src/index.js"]
