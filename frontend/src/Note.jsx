@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import humanize from 'humanize-duration'
 import copyToClipboard from './copyToClipboard'
 
 const withinLastFourSeconds = date => {
@@ -8,7 +7,6 @@ const withinLastFourSeconds = date => {
 
 export const Note = props => {
     const { noteId, note } = props
-    const [burnIn, setBurnIn] = useState(note.burnDate - Date.now())
     const [lastCopy, setCopied] = useState(0)
 
     const onCopyClick = event => {
@@ -20,10 +18,6 @@ export const Note = props => {
         copyToClipboard(note.message)
         return false
     }
-
-    setTimeout(() => {
-        setBurnIn(Math.max(note.burnDate - Date.now(), 0))
-    }, 1000)
 
     let copied = <div></div>
 
