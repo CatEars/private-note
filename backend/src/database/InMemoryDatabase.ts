@@ -107,7 +107,7 @@ export class InMemoryDatabase implements Database {
 
         const note = this.storage.notes[noteId]
         const accesses = this.storage.accesses[noteId] || []
-        return note.allowedReads >= accesses.length
+        return accesses.length >= note.allowedReads
     }
 
     dumpDatabase(): any {
