@@ -83,6 +83,33 @@ export class InMemoryDatabase implements Database {
         return this.storage.logs[logId]
     }
 
+    async noteExists(noteId: NoteId) {
+        return !!this.storage.notes[noteId]
+    }
+
+    async hasBurned(noteId: NoteId) {
+        if (!this.storage.notes[noteId]) {
+            throw new Error(
+                `Note with id "${noteId}" does not exist. Cannot check if burnt.`
+            )
+        }
+
+        const note = this.storage.notes[noteId]
+        return note.burnDate < Date.now()
+    }
+
+    async hasBeenRead(noteId: NoteId) {
+        if (!this.storage.notes[noteId]) {
+            throw new Error(
+                `Note with id "${noteId}" does not exist. Cannot check read count.`
+            )
+        }
+
+        const note = this.storage.notes[noteId]
+        const accesses = this.storage.accesses[noteId] || []
+        return note.allowedReads >= accesses.length
+    }
+
     dumpDatabase(): any {
         return this.storage
     }
