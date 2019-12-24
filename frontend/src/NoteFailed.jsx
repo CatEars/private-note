@@ -1,7 +1,9 @@
 import React from 'react'
 
-export const NoteFailed = () => (
-    <div className="noteFailed">
-        <p className="noteFailed-text">Could not load the note!</p>
+export const NoteFailed = ({ message }) => (
+    <div className="content-center text-center">
+        <p className="text-xl lg:w-1/5 sm:w-1/2 my-3 mx-auto px-2 py-2">
+            {message}
+        </p>
     </div>
 )

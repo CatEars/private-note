@@ -79,6 +79,31 @@ const getNote = async (id: string) => {
     }
 }
 
+const getNoteStatus = async (id: string) => {
+    const response = await apiGet(`/api/note/${id}/status`)
+    if (!response.ok) {
+        if (response.status === 404) {
+            console.warn(`Note ${id} did not exist`)
+            return {
+                exists: false,
+                hasBurned: null,
+                hasBeenRead: null,
+            }
+        }
+        throw new Error(`Getting status for ${id} did not work!`)
+    }
+    const status = await response.json()
+
+    const { hasBurned, hasBeenRead } = status
+
+    console.log(`Status for note ${id} is:`, status)
+    return {
+        exists: true,
+        hasBurned,
+        hasBeenRead,
+    }
+}
+
 const App = () => {
     const currentLocation = window.location.href
     const url = new URL(currentLocation)
@@ -89,7 +114,7 @@ const App = () => {
         message: '',
         burnDate: Date.now() + 5000,
     })
-    const [noteFailed, setNoteFailed] = useState(false)
+    const [noteFailedStatus, setNoteFailedStatus] = useState('')
 
     const onKeyGenerated = (key: CryptoKey) => {
         console.log('Key has been generated')
@@ -118,6 +143,47 @@ const App = () => {
             .catch(console.error)
     }
 
+    const doLoadNoteStatus = (noteId: string) => {
+        getNoteStatus(noteId)
+            .then(status => {
+                const { exists, hasBurned, hasBeenRead } = status
+
+                if (!exists) {
+                    setNoteFailedStatus(`The note does not exist!`)
+                } else if (hasBeenRead && hasBurned) {
+                    setNoteFailedStatus(
+                        'The note is both old and has already been read'
+                    )
+                } else if (hasBeenRead) {
+                    setNoteFailedStatus(
+                        'The note has already been read. ' +
+                            'You can no longer see it after it has been read. ' +
+                            'If you expected to be able to read it then ' +
+                            'something bad might have happened. ' +
+                            'Make sure to contact the one that sent you the link!'
+                    )
+                } else if (hasBurned) {
+                    setNoteFailedStatus(
+                        'The note is too old to be read. ' +
+                            'Try to ask the sender if they can send a new note ' +
+                            'with the same content.'
+                    )
+                } else {
+                    setNoteFailedStatus(
+                        'An unexpected error got you here. Something ' +
+                            'must be coded wrong on the webpage for you ' +
+                            'to see this...'
+                    )
+                }
+            })
+            .catch(err => {
+                console.error(err)
+                setNoteFailedStatus(
+                    'Some general issue happened when loading the note...'
+                )
+            })
+    }
+
     const doLoadNote = (noteId: string) => {
         setNoteLoading(true)
         getNote(noteId)
@@ -125,8 +191,8 @@ const App = () => {
                 setNote(note)
             })
             .catch(err => {
-                setNoteFailed(true)
                 console.error(err)
+                doLoadNoteStatus(noteId)
             })
     }
 
@@ -137,8 +203,8 @@ const App = () => {
     const creatingNoteId = createdNoteId === '1234'
     const showLink = createdNoteId && !creatingNoteId && createdNoteKey !== ''
 
-    if (noteFailed) {
-        app = <NoteFailed />
+    if (noteFailedStatus) {
+        app = <NoteFailed message={noteFailedStatus} />
     } else if (urlIncludesUuid) {
         const matches = url.pathname.match(uuidRegex) as any
         if (!noteLoading) {
