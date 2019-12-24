@@ -5,9 +5,6 @@ import winston from 'winston'
 export const logger = winston.createLogger({
     level: LOG_MODE,
     format: winston.format.json(),
-    defaultMeta: {
-        service: 'private-note',
-    },
 
     transports: [
         new winston.transports.File({
