@@ -194,3 +194,62 @@ test('Can store note with default options', async done => {
     expect(theNote).toEqual(exampleNote)
     done()
 })
+
+test('Can check that a note exists', async done => {
+    const db = new InMemoryDatabase()
+
+    expect(await db.noteExists(uuid.v4())).toEqual(false)
+    expect(await db.noteExists(uuid.v4())).toEqual(false)
+    expect(await db.noteExists(uuid.v4())).toEqual(false)
+
+    const id = await db.storeNote(exampleNote)
+
+    expect(await db.noteExists(uuid.v4())).toEqual(false)
+    expect(await db.noteExists(id)).toEqual(true)
+
+    done()
+})
+
+test('Can check that a note has burned', async done => {
+    const db = new InMemoryDatabase()
+    const burnedNote = _.assign({}, exampleNote, { burnDate: Date.now() - 1 })
+    const burnedId = await db.storeNote(burnedNote)
+    const id = await db.storeNote(exampleNote)
+
+    expect(await db.hasBurned(burnedId)).toEqual(true)
+    expect(await db.hasBurned(id)).toEqual(false)
+    done()
+})
+
+test('Can check that a note has been read', async done => {
+    const db = new InMemoryDatabase()
+    const id = await db.storeNote(exampleNote)
+
+    expect(await db.hasBeenRead(id)).toEqual(false)
+    expect(await db.hasBeenRead(id)).toEqual(false)
+    expect(await db.hasBeenRead(id)).toEqual(false)
+
+    const note = await db.getNote(id, normalOptions)
+
+    expect(await db.hasBeenRead(id)).toEqual(true)
+    expect(await db.hasBeenRead(id)).toEqual(true)
+    done()
+})
+
+test('Checking a non-existant note for burning throws an error', async done => {
+    const db = new InMemoryDatabase()
+    try {
+        await db.hasBurned(uuid.v4())
+        fail()
+    } catch (err) {}
+    done()
+})
+
+test('Checking a non-existant note for being read throws an error', async done => {
+    const db = new InMemoryDatabase()
+    try {
+        await db.hasBeenRead(uuid.v4())
+        fail()
+    } catch (err) {}
+    done()
+})
