@@ -6,7 +6,7 @@ import { Note } from './Note.jsx'
 import { LinkLoading } from './LinkLoading.jsx'
 import { Link } from './Link.jsx'
 import { Form } from './Form.jsx'
-import { Availability } from './Availability.tsx'
+import { Availability } from './Availability'
 import {
     encryptMessage,
     decryptMessage,
