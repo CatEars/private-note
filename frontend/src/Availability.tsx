@@ -24,7 +24,7 @@ export const Availability = ({ children }) => {
                 <p>The following browser features are missing:</p>
                 <ul>
                     {missing.map(x => (
-                        <li>{x}</li>
+                        <li key={x}>{x}</li>
                     ))}
                 </ul>
             </>
