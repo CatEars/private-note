@@ -16,6 +16,7 @@ jobs:
             cd ~/private-note
             rm -rf *
             git clone https://github.com/CatEars/private-note.git .
+            git checkout $CIRCLE_SHA1
 
       - restore_cache:
           keys:
@@ -78,6 +79,7 @@ jobs:
             cd ~/private-note
             rm -rf *
             git clone https://github.com/CatEars/private-note.git .
+            git checkout $CIRCLE_SHA1
 
       - restore_cache:
           keys:
