@@ -2,6 +2,7 @@ import express from 'express'
 import * as database from './database'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
+import { logger } from './logger'
 
 const JSON_MAX_SIZE = process.env.JSON_MAX_SIZE || '1mb'
 const LIMIT_WINDOW_MS = Number.parseInt(
@@ -71,7 +72,7 @@ const main = async () => {
             try {
                 const { ID } = req.params
                 if (!isUuidV4(ID)) {
-                    console.error(`ID "${ID}" is not a valid UUIDv4`)
+                    logger.error(`ID "${ID}" is not a valid UUIDv4`)
                     res.sendStatus(400)
                     return
                 }
@@ -87,10 +88,10 @@ const main = async () => {
                 }
                 const note = await db.getNote(ID, options)
 
-                console.log(`Retrieved note "${ID}" and sending it back`)
+                logger.info(`Retrieved note "${ID}" and sending it back`)
                 res.json(note)
             } catch (error) {
-                console.error('GET /api/note/:ID', error)
+                logger.error('GET /api/note/:ID', error)
                 res.sendStatus(500)
             }
         }
@@ -118,17 +119,20 @@ const main = async () => {
                 }
 
                 if (!validateNote(note)) {
-                    console.error(`NOTE: ${note} was not a valid note!`)
-                    console.error(JSON.stringify(note))
+                    logger.error({
+                        message: `NOTE: ${note} was not a valid note!`,
+                        note,
+                    })
                     res.sendStatus(400)
                     return
                 }
 
                 await createLog(req)
                 const ID = await db.storeNote(note)
+                logger.info(`Created note: ${ID}`)
                 res.json({ ID })
             } catch (error) {
-                console.error('POST /api/note', error)
+                logger.error('POST /api/note', error)
                 res.sendStatus(500)
             }
         }
@@ -138,29 +142,22 @@ const main = async () => {
         try {
             res.sendFile(process.cwd() + '/./static/index.html')
         } catch (error) {
-            console.error('GET /*', error)
+            logger.error('GET /*', error)
             res.sendStatus(500)
         }
     })
 
     app.listen(3000, () => {
-        console.log('Listening on port 3000')
+        logger.info('Listening on port 3000')
     })
 }
 
 if (require.main === module) {
     process.on('SIGINT', async () => {
-        console.log('Caught interrupt signal')
+        logger.info('Caught interrupt signal')
         await db.stopDatabase()
         process.exit()
     })
-
-    setInterval(() => {
-        const fs = require('fs')
-        const database = db.dumpDatabase()
-        const stringified = JSON.stringify(database, null, 2)
-        fs.writeFileSync('database.json', stringified)
-    }, 5000)
 
     main()
 }
