@@ -53,5 +53,11 @@ export interface Database {
 
     getLog(logId: LogId): Promise<Log>
 
+    noteExists(noteId: NoteId): Promise<boolean>
+
+    hasBurned(noteId: NoteId): Promise<boolean>
+
+    hasBeenRead(noteId: NoteId): Promise<boolean>
+
     stopDatabase(): Promise<any>
 }

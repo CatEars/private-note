@@ -67,6 +67,43 @@ const main = async () => {
     app.use(express.static('./static'))
 
     app.get(
+        '/api/note/:ID/status',
+        async (req: express.Request, res: express.Response) => {
+            try {
+                const { ID } = req.params
+                if (!isUuidV4(ID)) {
+                    logger.error(`ID "${ID}" is not a valid UUIDv4`)
+                    res.sendStatus(400)
+                    return
+                }
+
+                const exists = await db.noteExists(ID)
+                if (!exists) {
+                    logger.error(
+                        `Tried to get status of Note ${ID} but no such note exists`
+                    )
+                    res.sendStatus(404)
+                    return
+                }
+                const hasBurned = await db.hasBurned(ID)
+                const hasBeenRead = await db.hasBeenRead(ID)
+
+                logger.info(`Returning status of note with ID ${ID}`)
+                res.json({
+                    hasBeenRead,
+                    hasBurned,
+                })
+            } catch (err) {
+                logger.error({
+                    message: `GET /api/note/:ID/status Got error when loading status of note`,
+                    error: err,
+                })
+                res.sendStatus(500)
+            }
+        }
+    )
+
+    app.get(
         '/api/note/:ID',
         async (req: express.Request, res: express.Response) => {
             try {
@@ -78,6 +115,15 @@ const main = async () => {
                 }
 
                 const logId = await createLog(req)
+                const exists = await db.noteExists(ID)
+                if (!exists) {
+                    logger.error(
+                        `Tried to access Note ${ID} but no such note exists`
+                    )
+                    res.sendStatus(404)
+                    return
+                }
+
                 const options: database.NoteOptions = {
                     accessInfo: {
                         logId,
