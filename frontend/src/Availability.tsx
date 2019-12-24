@@ -11,7 +11,7 @@ const necessaryElements = [
     'crypto.subtle.decrypt',
 ]
 
-export const Availability = ({ children }) => {
+export const Availability = ({ children }: any) => {
     const missing = necessaryElements.filter(x => !_.get(window, x))
     if (missing.length) {
         return (
