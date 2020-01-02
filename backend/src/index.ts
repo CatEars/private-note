@@ -1,7 +1,10 @@
 import express from 'express'
-import * as database from './database'
-import rateLimit from 'express-rate-limit'
+import expressPino from 'express-pino-logger'
 import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
+
+import * as database from './database'
+import { ENABLE_EXPRESS_LOGGING } from './config'
 import { logger } from './logger'
 
 const JSON_MAX_SIZE = process.env.JSON_MAX_SIZE || '1mb'
@@ -65,6 +68,9 @@ const main = async () => {
     app.use('/api', LIMITER)
     app.use(helmet())
     app.use(express.static('./static'))
+    if (ENABLE_EXPRESS_LOGGING) {
+        app.use(expressPino({ logger }))
+    }
 
     app.get(
         '/api/note/:ID/status',
