@@ -1,5 +1,6 @@
-import { LOG_FILE, LOG_MODE, LOG_PLUGIN_FILE } from './config'
-
+export const LOG_FILE = process.env.LOG_FILE || ''
+export const LOG_MODE = process.env.LOG_MODE || 'info'
+export const LOG_PLUGIN_FILE = process.env.LOG_PLUGIN_FILE || ''
 import pino from 'pino'
 
 export const logger = pino(
