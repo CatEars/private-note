@@ -4,7 +4,11 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 
 import * as database from './database'
-import { ENABLE_EXPRESS_LOGGING } from './config'
+import {
+    Config,
+    initConfigurationWatch,
+    stopConfigurationWatch,
+} from './config'
 import { logger } from './logger'
 
 const JSON_MAX_SIZE = process.env.JSON_MAX_SIZE || '1mb'
@@ -58,6 +62,7 @@ const validateNote = (note: any) => {
 
 const main = async () => {
     await db.startDatabase()
+    initConfigurationWatch()
 
     const app = express()
     app.use(
@@ -68,7 +73,7 @@ const main = async () => {
     app.use('/api', LIMITER)
     app.use(helmet())
     app.use(express.static('./static'))
-    if (ENABLE_EXPRESS_LOGGING) {
+    if (Config.enableExpressLogging()) {
         app.use(expressPino({ logger }))
     }
 
@@ -207,6 +212,7 @@ const main = async () => {
 if (require.main === module) {
     process.on('SIGINT', async () => {
         logger.info('Caught interrupt signal')
+        stopConfigurationWatch()
         await db.stopDatabase()
         process.exit()
     })
