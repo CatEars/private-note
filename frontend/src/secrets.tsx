@@ -1,3 +1,5 @@
+import * as hex from './hex'
+
 const KEYSTYLE = 'raw'
 const ENCRYPT_PARAMS = {
     name: 'AES-GCM',
@@ -35,12 +37,12 @@ export const urlencodeKey = async (key: CryptoKey) => {
     const exported = await window.crypto.subtle.exportKey(KEYSTYLE, key)
     const array = new Uint8Array(exported)
     const asJSArray = Array.prototype.slice.call(array)
-    return encodeURIComponent(JSON.stringify(asJSArray))
+    return hex.hexEncode(asJSArray)
 }
 
 export const urldecodeKey = async (val: string) => {
-    const jsonArray = JSON.parse(decodeURIComponent(val))
-    const asUint8 = new Uint8Array(jsonArray)
+    const parsedArray = hex.hexDecode(val)
+    const asUint8 = new Uint8Array(parsedArray)
     return await window.crypto.subtle.importKey(
         KEYSTYLE,
         asUint8,
