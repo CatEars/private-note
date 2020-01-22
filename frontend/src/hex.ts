@@ -1,7 +1,7 @@
 import * as _ from 'lodash'
 
 const _valueMapper = '0123456789abcdef'
-const _indexMapper = {}
+const _indexMapper: any = {}
 _.forEach(_valueMapper, (elem, idx) => (_indexMapper[elem] = idx))
 
 /**
@@ -36,6 +36,6 @@ export const hexEncode = (hexValues: Array<number>) => {
  * Converts a hex string to an array of numbers.
  */
 export const hexDecode = (hexString: string) => {
-    const splitByByte = hexString.match(/.{1,2}/g)
-    return splitByByte.map(decodeByte)
+    const splitByByte = hexString.match(/.{1,2}/g) as string[]
+    return splitByByte.map(decodeByte) as number[]
 }
