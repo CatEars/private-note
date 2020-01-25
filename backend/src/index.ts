@@ -2,6 +2,7 @@ import express from 'express'
 import expressPino from 'express-pino-logger'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import fs from 'fs'
 
 import * as database from './database'
 import {
@@ -24,7 +25,41 @@ const LIMITER = rateLimit({
     max: MAX_REQUEST_RATE_LIMIT,
 })
 
-const db = new database.InMemoryDatabase()
+let db
+
+const loadDbFromConfig = () => {
+    const databaseType = Config.databaseType()
+    const databaseConfig = Config.databaseConfig()
+
+    if (databaseType === 'in-memory-database') {
+        logger.info(`Loading InMemoryDatabse as database`)
+        return new database.InMemoryDatabase()
+    } else if (fs.existsSync(databaseType)) {
+        logger.info(`Loading database from file: ${databaseType}`)
+        try {
+            const loaded = require(databaseType) as any
+            const { createDatabase } = loaded
+            const db = createDatabase(databaseConfig)
+            const missingFunctions = database.unimplementedFunctionsOfDatabase(
+                db
+            )
+            if (missingFunctions.length) {
+                logger.warn(
+                    `Database is missing the following functions: ` +
+                        `${missingFunctions}. Continuing anyway.`
+                )
+            }
+            return db
+        } catch (err) {
+            logger.error(
+                `Could not load database from file: ${databaseType}.`,
+                err
+            )
+        }
+    } else {
+        throw new Error(`Database "${databaseType}" is not found or recognized`)
+    }
+}
 
 const createLog = async (req: express.Request) => {
     const log: database.Log = {
@@ -61,8 +96,10 @@ const validateNote = (note: any) => {
 }
 
 const main = async () => {
-    await db.startDatabase()
     initConfigurationWatch()
+
+    db = loadDbFromConfig()
+    await db.startDatabase()
 
     const app = express()
     app.use(

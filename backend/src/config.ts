@@ -64,8 +64,12 @@ export const stopConfigurationWatch = (
 
 export const ConfigLink = (configPath: string, defaultValue: any) => {
     let value = defaultValue
+    logger.debug(`${configPath} is now "${value}"`)
     configUpdatedEmitter.on('config-updated', (data: any) => {
-        value = _.get(data, configPath)
+        if (_.has(data, configPath)) {
+            value = _.get(data, configPath)
+            logger.debug(`${configPath} is updated to "${value}"`)
+        }
     })
 
     return () => value
@@ -76,4 +80,8 @@ export const Config = {
         'enable-express-logging',
         ENABLE_EXPRESS_LOGGING
     ),
+
+    databaseType: ConfigLink('database-type', 'in-memory-database'),
+
+    databaseConfig: ConfigLink('database-config', {}),
 }
