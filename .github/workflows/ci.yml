@@ -53,7 +53,7 @@ jobs:
       - name: Run tests
         working-directory: ./frontend
         run: |
-          npm test-ci
+          npm run test-ci
 
       - name: Ensure styles can be built
         working-directory: ./frontend
