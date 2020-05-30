@@ -232,14 +232,7 @@ const main = async () => {
         }
     )
 
-    app.get('/*', (req: express.Request, res: express.Response) => {
-        try {
-            res.sendFile(process.cwd() + '/./static/index.html')
-        } catch (error) {
-            logger.error('GET /*', error)
-            res.sendStatus(500)
-        }
-    })
+    app.use('/static', express.static('static'))
 
     app.listen(3000, () => {
         logger.info('Listening on port 3000')
