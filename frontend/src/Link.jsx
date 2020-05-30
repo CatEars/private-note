@@ -11,7 +11,7 @@ export const Link = props => {
     const [lastCopy, setCopied] = useState(0)
 
     const url = new URL(window.location.href)
-    const linkUrl = `${url.origin}/${noteId}#${noteKey}`
+    const linkUrl = `${url.origin}/note/${noteId}#${noteKey}`
 
     const onCopyClick = event => {
         event.preventDefault()
