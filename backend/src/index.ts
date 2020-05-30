@@ -3,6 +3,7 @@ import expressPino from 'express-pino-logger'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import fs from 'fs'
+import expressNobots from './thirdparty/express-nobots'
 
 import * as database from './database'
 import {
@@ -109,7 +110,8 @@ const main = async () => {
     )
     app.use('/api', LIMITER)
     app.use(helmet())
-    app.use(express.static('./static'))
+    app.use(express.static('static'))
+
     if (Config.enableExpressLogging()) {
         app.use(expressPino({ logger }))
     }
@@ -232,7 +234,41 @@ const main = async () => {
         }
     )
 
-    app.use('/static', express.static('static'))
+    app.use('/note/*', expressNobots())
+    app.get('/note/*', (req: express.Request, res: express.Response) => {
+        try {
+            const options = {
+                root: process.cwd(),
+            }
+            logger.debug('Request for: ' + req.path)
+            res.sendFile('./static/index.html', options)
+        } catch (err) {
+            logger.error(
+                'User tried to get note at ' +
+                    req.path +
+                    ' but got error ' +
+                    err
+            )
+            res.sendStatus(500)
+        }
+    })
+
+    app.get('/', (req: express.Request, res: express.Response) => {
+        try {
+            const options = {
+                root: process.cwd(),
+            }
+            res.sendFile('./static/index.html', options)
+        } catch (err) {
+            logger.error(
+                'User tried to get note at ' +
+                    req.path +
+                    ' but got error ' +
+                    err
+            )
+            res.sendStatus(500)
+        }
+    })
 
     app.listen(3000, () => {
         logger.info('Listening on port 3000')
