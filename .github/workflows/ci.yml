@@ -4,7 +4,7 @@ on: push
 
 jobs:
   test-backend:
-    name: Run CI
+    name: Run CI for backend tests
     runs-on: ubuntu-latest
 
     steps:
@@ -14,17 +14,53 @@ jobs:
         with:
           node-version: 10.x
 
-      - name: Install dependencies
-        working-directory: ./backend
-        run: |
-          npm ci
-
       - uses: actions/cache@v1
         with:
           path: ./backend/node_modules
           key: node_modules-backend-v1-${{ hashFiles('backend/**/package-lock.json') }}
 
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          npm ci
+
       - name: Run tests
         working-directory: ./backend
         run: |
           npm test
+
+  test-frontend:
+    name: Run CI for frontend tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+
+      - uses: actions/cache@v1
+        with:
+          path: ./frontend/node_modules
+          key: node_modules-frontend-v1-${{ hashFiles('frontend/**/package-lock.json') }}
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: |
+          npm ci
+
+      - name: Run tests
+        working-directory: ./frontend
+        run: |
+          npm test-ci
+
+      - name: Ensure styles can be built
+        working-directory: ./frontend
+        run: |
+          npm run build:styles
+
+      - name: Ensure app can be built
+        working-directory: ./frontend
+        run: |
+          npm run build
