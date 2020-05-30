@@ -20,10 +20,9 @@ jobs:
           npm ci
 
       - uses: actions/cache@v1
-        working-directory: ./backend
         with:
-          path: node_modules
-          key: node_modules-backend-v1-${{ hashFiles('**/package-lock.json') }}
+          path: ./backend/node_modules
+          key: node_modules-backend-v1-${{ hashFiles('backend/**/package-lock.json') }}
 
       - name: Run tests
         working-directory: ./backend
