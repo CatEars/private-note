@@ -4,8 +4,6 @@ import * as fs from 'fs'
 import * as config from '../src/config'
 import { logger } from '../src/logger'
 
-logger.level = 'silent'
-
 const CONFIG_FILE = './test_config.json'
 
 const sleepMs = (ms: number) =>
@@ -21,6 +19,14 @@ const writeConfigFile = (data: any) => {
 const removeConfigFile = () => {
     fs.unlinkSync(CONFIG_FILE)
 }
+
+beforeEach(() => {
+    logger.level = 'silent'
+})
+
+afterEach(() => {
+    logger.level = 'info'
+})
 
 test('Can set config and that updates the config values', () => {
     config.setConfiguration({
@@ -42,6 +48,7 @@ test('Can read configuration files', () => {
     config.initConfigurationWatch(CONFIG_FILE)
     const value = config.Config.enableExpressLogging()
     expect(value).toEqual(true)
+    config.stopConfigurationWatch(CONFIG_FILE)
 
     removeConfigFile()
 })
