@@ -1,11 +1,9 @@
 # Private Note
 
-[![CircleCI](https://circleci.com/gh/CatEars/private-note.svg?style=svg)](https://circleci.com/gh/CatEars/private-note)
-[![](https://images.microbadger.com/badges/image/catears/private-note.svg)](https://microbadger.com/images/catears/private-note 'Get your own image badge on microbadger.com')
-[![](https://images.microbadger.com/badges/version/catears/private-note.svg)](https://microbadger.com/images/catears/private-note 'Get your own version badge on microbadger.com')
+![ci](https://github.com/CatEars/private-note/workflows/ci/badge.svg)
 
-A simple and free application that uses basic end to end encryption to share
-secrets. Once read, the secrets are destroyed.
+A simple and forever free application that uses basic end to end encryption to
+share secrets. Once read, the secrets are destroyed.
 
 #### Try it out with docker
 
