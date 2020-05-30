@@ -15,17 +15,17 @@ jobs:
           node-version: 10.x
 
       - name: Install dependencies
-        working-directory: backend
+        working-directory: ./backend
         run: |
           npm ci
 
       - uses: actions/cache@v1
-        working-directory: backend
+        working-directory: ./backend
         with:
           path: node_modules
           key: node_modules-backend-v1-${{ hashFiles('**/package-lock.json') }}
 
       - name: Run tests
-        working-directory: backend
+        working-directory: ./backend
         run: |
           npm test
