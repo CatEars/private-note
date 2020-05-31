@@ -1,8 +1,9 @@
 name: Build Docker
 
 on:
-  branches:
-    - v*
+  push:
+    branches:
+      - 'v*'
 
 jobs:
   deploy-docker:
