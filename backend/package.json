@@ -8,8 +8,7 @@
         "test:watch": "jest --watchAll",
         "docker:test:build": "docker-compose build test-runner",
         "docker:test:watch": "docker-compose run test-runner",
-        "build": "rm -rf dist && tsc",
-        "build:watch": "rm -rf dist && tsc --watch",
+        "build": "rm -rf dist && tsc && cp -r src/thirdparty dist/src/thirdparty",
         "start": "docker-compose up app",
         "docker:internal:run": "nodemon",
         "preversion": "npm run build"
