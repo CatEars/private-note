@@ -1,7 +1,7 @@
 # Private Note
 
-![ci](https://github.com/CatEars/private-note/workflows/ci/badge.svg)
-
+![Tests](https://github.com/CatEars/private-note/workflows/ci/badge.svg)
+[![](https://images.microbadger.com/badges/version/catears/private-note.svg)](https://microbadger.com/images/catears/private-note 'Get your own version badge on microbadger.com')
 A simple and forever free application that uses basic end to end encryption to
 share secrets. Once read, the secrets are destroyed.
 
