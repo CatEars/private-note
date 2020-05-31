@@ -10,6 +10,10 @@ jobs:
     name: Update Docker Image on Tags
     runs-on: ubuntu-latest
     steps:
+      - name: Extract branch name
+        id: extract_branch
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
       - uses: actions/checkout@v2
       - name: Setup Node.js
         uses: actions/setup-node@v1
@@ -41,4 +45,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           dockerfile: dockerfile-private-note
           workdir: ./backend
-          tags: ${GITHUB_REF##*/},latest
+          tags: ${{ steps.extract_branch.output.branch }},latest
