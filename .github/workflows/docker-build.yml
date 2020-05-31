@@ -10,11 +10,6 @@ jobs:
     name: Update Docker Image on Tags
     runs-on: ubuntu-latest
     steps:
-      - name: Extract branch name
-        id: extract_branch
-        shell: bash
-        run: |
-          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
       - uses: actions/checkout@v2
       - name: Setup Node.js
         uses: actions/setup-node@v1
@@ -40,11 +35,12 @@ jobs:
           ./print_rev_info.sh > revinfo.txt
       - name: Publish Docker Image
         run: |
-          docker build . -t catears/private-note:${{ steps.extract_branch.output.branch }}
-          docker tag catears/private-note:${{ steps.extract_branch.output.branch }} catears/private-note:latest
+          export GIT_REF=$(git rev-parse --abbrev-ref HEAD)
+          docker build . -t catears/private-note:$GIT_REF
+          docker tag catears/private-note:$GIT_REF catears/private-note:latest
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-          docker push catears/private-note:${{ steps.extract_branch.output.branch }}
+          docker push catears/private-note:$GIT_REF
           docker push catears/private-note:latest
 
           docker logout
