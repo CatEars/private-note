@@ -35,8 +35,6 @@ jobs:
           cd ../backend
           npm ci
           ./print_rev_info.sh > revinfo.txt
-          docker build . -t catears/private-note:${GITHUB_REF##*/} -f dockerfile-private-note
-          docker tag catears/private-note:${GITHUB_REF##*/} catears/private-note:latest
       - name: Publish Docker Image To Registry
         uses: elgohr/Publish-Docket-Github-Action@master
         with:
