@@ -37,12 +37,13 @@ jobs:
           cd ../backend
           npm ci
           ./print_rev_info.sh > revinfo.txt
-      - name: Publish Docker Image To Registry
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: catears/private-note
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          dockerfile: dockerfile-private-note
-          workdir: ./backend
-          tags: ${{ steps.extract_branch.output.branch }},latest
+      - name: Publish Docker Image
+        run: |
+          docker build . -t catears/private-note:${{ steps.extract_branch.output.branch }}
+          docker tag catears/private-note:${{ steps.extract_branch.output.branch }} catears/private-note:latest
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+          docker push catears/private-note:${{ steps.extract_branch.output.branch }}
+          docker push catears/private-note:latest
+
+          docker logout
