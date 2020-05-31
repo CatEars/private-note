@@ -34,7 +34,7 @@ jobs:
           npm ci
           ./print_rev_info.sh > revinfo.txt
       - name: Publish Docker Image To Registry
-        uses: elgohr/Publish-Docket-Github-Action@master
+        uses: elgohr/Publish-Docker-Github-Action@master
         with:
           name: catears/private-note
           username: ${{ secrets.DOCKER_USERNAME }}
