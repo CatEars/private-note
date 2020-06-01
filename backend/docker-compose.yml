@@ -8,8 +8,14 @@ services:
         volumes:
             - ./src:/app/src:ro
             - ../frontend/build:/app/static:ro
+            - ./config.json:/etc/privnote/config.json:ro
         ports:
             - 3000:3000
+        environment:
+            - 'CONFIGURATION_FILE=/etc/privnote/config.json'
+
+    redis:
+        image: redis
 
     test-runner:
         build:
