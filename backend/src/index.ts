@@ -12,6 +12,7 @@ import {
     stopConfigurationWatch,
 } from './config'
 import { logger } from './logger'
+import { RedisOptions } from 'ioredis'
 
 const JSON_MAX_SIZE = process.env.JSON_MAX_SIZE || '1mb'
 const LIMIT_WINDOW_MS = Number.parseInt(
@@ -35,6 +36,18 @@ const loadDbFromConfig = () => {
     if (databaseType === 'in-memory-database') {
         logger.info(`Loading InMemoryDatabse as database`)
         return new database.InMemoryDatabase()
+    } else if (databaseType === 'redis') {
+        let db
+        if (databaseConfig) {
+            logger.info(
+                `Using Redis with configuration as supplied by user configuration`
+            )
+            db = new database.RedisDatabase(databaseConfig)
+        } else {
+            logger.info(`Using Redis with no configuration`)
+            db = new database.RedisDatabase()
+        }
+        return db
     } else if (fs.existsSync(databaseType)) {
         logger.info(`Loading database from file: ${databaseType}`)
         try {

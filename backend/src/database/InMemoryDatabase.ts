@@ -12,8 +12,6 @@ export class InMemoryDatabase implements Database {
         logs: {},
     }
 
-    InMemoryDatabase() {}
-
     async startDatabase() {
         return
     }
