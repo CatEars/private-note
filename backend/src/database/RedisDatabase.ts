@@ -85,12 +85,13 @@ export class RedisDatabase implements Database {
     }
 
     async getLog(logId: LogId) {
-        const doesExist = await this.redis.exists(logId as string)
+        const key = `log-${logId}`
+        const doesExist = await this.redis.exists(key as string)
         if (!doesExist) {
             throw new Error(`Log with Id "${logId}" does not exist.`)
         }
 
-        const jsonified = (await this.redis.get(`log-${logId}`)) || ''
+        const jsonified = (await this.redis.get(key)) || ''
         return JSON.parse(jsonified)
     }
 
