@@ -1,7 +1,7 @@
 import 'jest'
 jest.mock('ioredis')
 
-import { Note } from '../src/database/types'
+import { Note, Log } from '../src/database/types'
 import { RedisDatabase } from '../src/database/RedisDatabase'
 import uuid from 'uuid'
 
@@ -11,6 +11,12 @@ const exampleNote: Note = {
     fingerprint: [3, 2, 1],
     IV: [4, 5, 6],
     burnDate: Date.now() + 100000,
+}
+
+const exampleLog: Log = {
+    accessUrl: 'http://example.com',
+    ip: '192.168.1.1',
+    timeOfAccess: Date.now(),
 }
 
 const NewNote = (burnDate: number): Note => {
@@ -49,8 +55,17 @@ describe('RedisDatabase', () => {
         expect(db.redis.constructorParams).toBe(options)
     })
 
+    it('Can store and retrieve logs', async done => {
+        const db = new RedisDatabase()
+        const id = await db.storeLog(exampleLog)
+        expect(id).toMatch(uuidv4Regex)
+        const log = await db.getLog(id)
+        expect(log).toEqual(exampleLog)
+        done()
+    })
+
     it('Can store and retrieve a note', async done => {
-        let db: any = new RedisDatabase()
+        const db = new RedisDatabase()
         const id = await db.storeNote(exampleNote)
         expect(id).toMatch(uuidv4Regex)
         const note = await db.getNote(id, {})
@@ -59,9 +74,9 @@ describe('RedisDatabase', () => {
     })
 
     it('Can check if a note exists', async done => {
-        let db: any = new RedisDatabase()
+        const db = new RedisDatabase()
         expect(await db.noteExists(uuid.v4())).toBeFalsy()
-        const id = await db.storeNote()
+        const id = await db.storeNote(exampleNote)
         expect(await db.noteExists(id)).toBeTruthy()
         expect(await db.noteExists(uuid.v4())).toBeFalsy()
         expect(await db.noteExists(id)).toBeTruthy()
@@ -71,7 +86,7 @@ describe('RedisDatabase', () => {
     })
 
     it('Can check if a note has burned', async done => {
-        let db: any = new RedisDatabase()
+        const db = new RedisDatabase()
         let id = await db.storeNote(NewNote(Date.now() - 1))
         expect(await db.hasBurned(id)).toBeTruthy()
         id = await db.storeNote(NewNote(Date.now() + 1000))
@@ -80,7 +95,7 @@ describe('RedisDatabase', () => {
     })
 
     it('Checking if a non-existant note has burned fails', async done => {
-        const db: any = new RedisDatabase()
+        const db = new RedisDatabase()
         try {
             await db.hasBurned(uuid.v4())
             fail()
@@ -89,12 +104,27 @@ describe('RedisDatabase', () => {
         }
     })
 
-    it('Can check if a note has already been read', () => {
-        fail()
+    it('Can check if a note has already been read', async done => {
+        const db = new RedisDatabase()
+        const id = await db.storeNote(exampleNote)
+        expect(await db.hasBeenRead(id)).toBeFalsy()
+        const note = await db.getNote(id, {})
+        expect(await db.hasBeenRead(id)).toBeTruthy()
+        expect(await db.hasBeenRead(id)).toBeTruthy()
+        done()
     })
 
-    it('Allows to specify checkAllowedRead: false to still allow reading', () => {
-        fail()
+    it('Allows to specify checkAllowedRead: false to still allow reading', async done => {
+        const db = new RedisDatabase()
+        const id = await db.storeNote(exampleNote)
+        await db.getNote(id, {})
+        await db.getNote(id, { checkAllowedReads: false })
+        try {
+            await db.getNote(id, {})
+            fail()
+        } catch (error) {
+            done()
+        }
     })
 
     it('Can disconnect on stopping', () => {
