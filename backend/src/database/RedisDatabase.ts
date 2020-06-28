@@ -3,6 +3,7 @@ import Redis, { RedisOptions } from 'ioredis'
 import { logger } from '../logger'
 
 import { NoteId, LogId, Note, NoteOptions, Log, Database } from './types'
+import _ from 'lodash'
 
 /**
  * Database implementation with Redis as backend.
@@ -21,8 +22,10 @@ export class RedisDatabase implements Database {
     }
 
     async startDatabase() {
-        logger.info(`Connecting to redis`)
-        await this.redis.connect()
+        if (!_.includes(['connecting', 'connected'], this.redis.status)) {
+            logger.info(`Connecting to redis`)
+            await this.redis.connect()
+        }
     }
 
     async storeNote(note: Note) {
