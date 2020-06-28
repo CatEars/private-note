@@ -1,5 +1,6 @@
 import uuid from 'uuid'
 import Redis, { RedisOptions } from 'ioredis'
+import { logger } from '../logger'
 
 import { NoteId, LogId, Note, NoteOptions, Log, Database } from './types'
 
@@ -19,20 +20,25 @@ export class RedisDatabase implements Database {
         this.redis = new Redis(options)
     }
 
-    async startDatabase() {}
+    async startDatabase() {
+        logger.info(`Connecting to redis`)
+        await this.redis.connect()
+    }
 
     async storeNote(note: Note) {
         const id = uuid.v4() as NoteId
         const jsonified = JSON.stringify(note)
-        this.redis.set(`note-${id}`, jsonified)
-        this.redis.set(`read-${id}`, '[]')
+        logger.debug(`Storing note ${id} in Redis under note-${id}`)
+        await this.redis.set(`note-${id}`, jsonified)
+        await this.redis.set(`read-${id}`, '[]')
         return id
     }
 
     async storeLog(entry: Log) {
         const id = uuid.v4() as LogId
         const jsonified = JSON.stringify(entry)
-        this.redis.set(`log-${id}`, jsonified)
+        logger.debug(`Storing log ${id} in Redis under log-${id}`)
+        await this.redis.set(`log-${id}`, jsonified)
         return id
     }
 
@@ -74,6 +80,7 @@ export class RedisDatabase implements Database {
 
         if (addAccess) {
             const nextReads = currentReads.concat([accessInfo])
+            logger.debug(`Note ${noteId} was read`)
             await this.redis.set(`read-${noteId}`, JSON.stringify(nextReads))
         }
 
@@ -88,6 +95,7 @@ export class RedisDatabase implements Database {
         }
 
         const jsonified = (await this.redis.get(key)) || ''
+        logger.debug(`Log ${logId} was read`)
         return JSON.parse(jsonified)
     }
 
@@ -121,6 +129,7 @@ export class RedisDatabase implements Database {
     }
 
     async stopDatabase() {
-        this.redis.disconnect()
+        logger.info(`Disconnecting from redis`)
+        await this.redis.quit()
     }
 }

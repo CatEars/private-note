@@ -13,6 +13,8 @@ import {
     uuidv4Regex,
 } from './util'
 
+jest.mock('../src/logger')
+
 each([
     // First argument is the name solely for the purpose of a nice describe() name
     ['InMemoryDatabase', InMemoryDatabase],
