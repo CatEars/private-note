@@ -10,7 +10,7 @@
         "docker:test:build": "docker-compose -f docker/docker-compose.yml build test-runner",
         "docker:test:watch": "docker-compose -f docker/docker-compose.yml run test-runner",
         "build": "rm -rf dist && tsc && cp -r src/thirdparty dist/src/thirdparty",
-        "start": "docker-compose -f docker-compose.yml up app",
+        "start": "docker-compose -f docker/docker-compose.yml up app redis",
         "docker:internal:run": "nodemon",
         "preversion": "npm run build"
     },
@@ -20,6 +20,7 @@
     "devDependencies": {
         "@types/express": "^4.17.2",
         "@types/express-pino-logger": "^4.0.2",
+        "@types/ioredis": "^4.16.7",
         "@types/jest": "^24.9.1",
         "@types/jest-each": "^24.3.0",
         "@types/lodash": "^4.14.136",
@@ -34,7 +35,6 @@
         "typescript": "^3.8.3"
     },
     "dependencies": {
-        "@types/ioredis": "^4.16.3",
         "express": "^4.17.1",
         "express-pino-logger": "^4.0.0",
         "express-rate-limit": "^5.0.0",
