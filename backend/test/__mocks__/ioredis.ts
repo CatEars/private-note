@@ -7,17 +7,17 @@ class Redis {
         this.constructorParams = options
     }
 
-    set(key: string, value: any) {
+    async set(key: string, value: any) {
         this.calls.push(['set', key, value])
         this.values[key] = value
     }
 
-    exists(key: string): boolean {
+    async exists(key: string): Promise<boolean> {
         this.calls.push(['exists', key])
         return this.values.hasOwnProperty(key)
     }
 
-    get(key: string): any {
+    async get(key: string): Promise<any> {
         this.calls.push(['get', key])
         if (!this.exists(key)) {
             throw new Error('No such key')
@@ -25,8 +25,16 @@ class Redis {
         return this.values[key]
     }
 
-    disconnect() {
+    async disconnect() {
         this.calls.push(['disconnect'])
+    }
+
+    async quit() {
+        this.calls.push(['quit'])
+    }
+
+    async connect() {
+        this.calls.push(['connect'])
     }
 }
 

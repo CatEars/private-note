@@ -1,4 +1,5 @@
 import 'jest'
+jest.mock('../src/logger')
 
 import { RedisDatabase } from '../src/database/RedisDatabase'
 import uuid from 'uuid'
@@ -18,11 +19,13 @@ describe('RedisDatabase', () => {
         expect(db.redis.constructorParams).toBe(options)
     })
 
-    it('Can disconnect on stopping', async done => {
+    it('Can connect and disconnect', async done => {
         const db: any = new RedisDatabase()
+        await db.startDatabase()
         await db.stopDatabase()
-        expect(db.redis.calls.length).toBe(1)
-        expect(db.redis.calls[0]).toStrictEqual(['disconnect'])
+        expect(db.redis.calls.length).toBe(2)
+        expect(db.redis.calls[0]).toStrictEqual(['connect'])
+        expect(db.redis.calls[1]).toStrictEqual(['quit'])
         done()
     })
 })
