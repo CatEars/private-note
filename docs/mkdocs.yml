@@ -1,0 +1,11 @@
+site_name: Private Note Documentation
+
+theme:
+  name: 'material'
+  palette:
+    primary: deep orange
+    scheme: slate
+
+markdown_extensions:
+  - codehilite:
+      linenums: true

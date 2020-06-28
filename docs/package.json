@@ -1,0 +1,11 @@
+{
+    "name": "privnote-docs",
+    "version": "1.0.0",
+    "description": "",
+    "scripts": {
+        "start": "docker-compose up docs",
+        "build": "docker-compose up build"
+    },
+    "author": "",
+    "license": "MIT"
+}
