@@ -16,6 +16,8 @@ services:
 
     redis:
         image: redis
+        volumes:
+            - redis-data:/data
 
     test-runner:
         build:
@@ -25,3 +27,6 @@ services:
             - ../src:/app/src:ro
             - ../test:/app/test:ro
             - ../jest.config.js:/app/jest.config.js:ro
+
+volumes:
+    redis-data:
