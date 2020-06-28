@@ -6,11 +6,11 @@
     "scripts": {
         "test": "jest",
         "test:watch": "jest --watchAll",
-        "docker:redis-commander": "docker-compose -f docker-compose.yml -f docker-compose-extras.yml up redis-commander",
-        "docker:test:build": "docker-compose build test-runner",
-        "docker:test:watch": "docker-compose run test-runner",
+        "docker:redis-commander": "docker-compose -f docker/docker-compose.yml -f docker/docker-compose-extras.yml up redis-commander",
+        "docker:test:build": "docker-compose -f docker/docker-compose.yml build test-runner",
+        "docker:test:watch": "docker-compose -f docker/docker-compose.yml run test-runner",
         "build": "rm -rf dist && tsc && cp -r src/thirdparty dist/src/thirdparty",
-        "start": "docker-compose up app",
+        "start": "docker-compose -f docker-compose.yml up app",
         "docker:internal:run": "nodemon",
         "preversion": "npm run build"
     },

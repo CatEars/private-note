@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+    app:
+        build:
+            context: ..
+            dockerfile: docker/dockerfile-nodemon
+        volumes:
+            - ../src:/app/src:ro
+            - ../../frontend/build:/app/static:ro
+            - ../config.json:/etc/privnote/config.json:ro
+        ports:
+            - 3000:3000
+        environment:
+            - 'CONFIGURATION_FILE=/etc/privnote/config.json'
+
+    redis:
+        image: redis
+
+    test-runner:
+        build:
+            context: ..
+            dockerfile: docker/dockerfile-test-runner
+        volumes:
+            - ../src:/app/src:ro
+            - ../test:/app/test:ro
+            - ../jest.config.js:/app/jest.config.js:ro
