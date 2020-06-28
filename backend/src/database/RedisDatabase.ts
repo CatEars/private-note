@@ -19,11 +19,7 @@ export class RedisDatabase implements Database {
         this.redis = new Redis(options)
     }
 
-    async startDatabase() {
-        if (!this.redis) {
-            this.redis = new Redis()
-        }
-    }
+    async startDatabase() {}
 
     async storeNote(note: Note) {
         const id = uuid.v4() as NoteId
