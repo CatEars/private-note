@@ -40,7 +40,7 @@
         "express-rate-limit": "^5.0.0",
         "helmet": "^3.21.2",
         "ioredis": "^4.17.3",
-        "lodash": "^4.17.15",
+        "lodash": "^4.17.19",
         "pino": "^5.15.0",
         "pino-pretty": "^3.5.0",
         "uuid": "^3.3.3"
