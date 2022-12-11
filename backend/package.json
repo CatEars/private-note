@@ -35,7 +35,7 @@
         "typescript": "^3.8.3"
     },
     "dependencies": {
-        "express": "^4.17.1",
+        "express": "^4.17.3",
         "express-pino-logger": "^4.0.0",
         "express-rate-limit": "^5.0.0",
         "helmet": "^3.21.2",
